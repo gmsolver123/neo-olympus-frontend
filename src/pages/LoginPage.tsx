@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Zap, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Zap, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Button, Input } from '../components/ui';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, isLoading, error, clearError } = useAuthStore();
+  const { login, loginDemo, isLoading, error, clearError } = useAuthStore();
   const { addToast } = useUIStore();
   
   const [email, setEmail] = useState('');
@@ -29,6 +29,16 @@ export function LoginPage() {
     } catch (err) {
       // Error is handled by the store
     }
+  };
+
+  const handleDemoLogin = () => {
+    loginDemo();
+    addToast({
+      type: 'success',
+      title: 'Welcome to Neo Olympus!',
+      message: 'You are now in demo mode.',
+    });
+    navigate('/chat');
   };
 
   return (
@@ -160,6 +170,25 @@ export function LoginPage() {
               isLoading={isLoading}
             >
               Sign In
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-void-700" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-void-950 text-void-500">or</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={handleDemoLogin}
+              leftIcon={<Sparkles className="w-4 h-4 text-olympus-400" />}
+            >
+              Try Demo Mode
             </Button>
           </form>
 

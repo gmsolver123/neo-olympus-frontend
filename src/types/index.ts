@@ -5,11 +5,32 @@
 export interface User {
   id: string;
   email: string;
-  name: string;
-  avatar_url?: string;
+  full_name: string | null;
+  bio?: string | null;
+  is_active: boolean;
   plan: 'free' | 'pro' | 'enterprise';
   created_at: string;
-  updated_at: string;
+  // Computed display name (added by transformUser)
+  name: string;
+}
+
+// Raw user data from API (before transformation)
+export interface RawUser {
+  id: string;
+  email: string;
+  full_name: string | null;
+  bio?: string | null;
+  is_active: boolean;
+  plan: 'free' | 'pro' | 'enterprise';
+  created_at: string;
+}
+
+// Helper to create a User with computed name property
+export function transformUserData(data: RawUser): User {
+  return {
+    ...data,
+    name: data.full_name || data.email.split('@')[0],
+  };
 }
 
 export interface AuthState {
