@@ -1,4 +1,4 @@
-import { Menu, Sparkles, Zap } from 'lucide-react';
+import { Menu, Sparkles, Cpu } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
@@ -16,8 +16,8 @@ export function Header({ title, showMenuButton = true }: HeaderProps) {
     if (!user) return null;
     
     const badges = {
-      free: { label: 'Free', color: 'bg-void-700 text-void-300' },
-      pro: { label: 'Pro', color: 'bg-olympus-500/20 text-olympus-400 border border-olympus-500/30' },
+      free: { label: 'Free', color: 'bg-void-700/50 text-void-300 border border-void-600' },
+      pro: { label: 'Pro', color: 'bg-crystal-500/20 text-crystal-400 border border-crystal-500/30' },
       enterprise: { label: 'Enterprise', color: 'bg-purple-500/20 text-purple-400 border border-purple-500/30' },
     };
 
@@ -30,13 +30,13 @@ export function Header({ title, showMenuButton = true }: HeaderProps) {
   };
 
   return (
-    <header className="h-14 flex items-center justify-between px-4 border-b border-void-800 
-                      bg-void-950/50 backdrop-blur-sm">
+    <header className="h-14 flex items-center justify-between px-4 border-b border-void-700/50 
+                      bg-void-950/60 backdrop-blur-md">
       <div className="flex items-center gap-3">
         {showMenuButton && (
           <button
             onClick={toggleSidebar}
-            className="p-2 text-void-400 hover:text-void-200 hover:bg-void-800 
+            className="p-2 text-void-400 hover:text-crystal-400 hover:bg-void-800/50 
                      rounded-lg transition-colors lg:hidden"
           >
             <Menu className="w-5 h-5" />
@@ -44,7 +44,7 @@ export function Header({ title, showMenuButton = true }: HeaderProps) {
         )}
         
         {title && (
-          <h1 className="text-lg font-semibold text-void-100 font-display">
+          <h1 className="text-lg font-medium text-void-100">
             {title}
           </h1>
         )}
@@ -55,14 +55,14 @@ export function Header({ title, showMenuButton = true }: HeaderProps) {
         
         {user?.plan === 'free' && (
           <Button variant="secondary" size="sm" className="gap-1.5">
-            <Sparkles className="w-4 h-4 text-olympus-400" />
+            <Sparkles className="w-4 h-4 text-crystal-400" />
             Upgrade
           </Button>
         )}
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-void-800/50 
-                      border border-void-700">
-          <Zap className="w-4 h-4 text-olympus-400" />
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-void-800/40 
+                      border border-void-700/50 backdrop-blur-sm">
+          <Cpu className="w-4 h-4 text-crystal-400" />
           <span className="text-sm text-void-300">
             <span className="font-medium text-void-100">Smart</span> routing
           </span>

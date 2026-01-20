@@ -8,11 +8,11 @@ import {
   Trash2, 
   ChevronLeft,
   ChevronRight,
-  Zap,
   LogOut
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '../ui/Button';
+import { CrystalLogo } from '../icons';
 import { useAuthStore } from '../../store/authStore';
 import { useChatStore } from '../../store/chatStore';
 import { useUIStore } from '../../store/uiStore';
@@ -59,28 +59,41 @@ export function Sidebar() {
   return (
     <aside
       className={clsx(
-        'flex flex-col h-screen bg-void-900/60 border-r border-void-800',
-        'transition-all duration-300 ease-out',
+        'flex flex-col h-screen bg-void-900/70 border-r border-void-700/50',
+        'transition-all duration-300 ease-out backdrop-blur-sm',
         isSidebarCollapsed ? 'w-16' : 'w-72'
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-void-800">
+      <div className="flex items-center justify-between p-4 border-b border-void-700/50">
         {!isSidebarCollapsed && (
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-olympus-400 to-olympus-600 
-                          flex items-center justify-center shadow-glow">
-              <Zap className="w-5 h-5 text-void-950" />
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="logo-crystal w-10 h-10 bg-void-900/80 rounded-xl p-1 
+                          shadow-glow transition-all duration-300 group-hover:shadow-glow-lg">
+              <CrystalLogo size={32} />
             </div>
-            <span className="font-display font-bold text-void-100 text-lg">
-              Neo Olympus
-            </span>
+            <div className="flex flex-col">
+              <span className="font-display font-bold text-void-50 text-lg tracking-wider">
+                NeoChat
+              </span>
+              <span className="text-[10px] text-void-400 tracking-wide -mt-0.5">
+                by Neo Olympus
+              </span>
+            </div>
           </Link>
+        )}
+        {isSidebarCollapsed && (
+          <div className="logo-crystal w-10 h-10 bg-void-900/80 rounded-xl p-1 shadow-glow mx-auto">
+            <CrystalLogo size={32} />
+          </div>
         )}
         <button
           onClick={toggleSidebarCollapse}
-          className="p-2 text-void-400 hover:text-void-200 hover:bg-void-800 
-                   rounded-lg transition-colors"
+          className={clsx(
+            'p-2 text-void-400 hover:text-crystal-400 hover:bg-void-800/50',
+            'rounded-lg transition-colors',
+            isSidebarCollapsed && 'hidden lg:block absolute right-2'
+          )}
         >
           {isSidebarCollapsed ? (
             <ChevronRight className="w-4 h-4" />
@@ -113,9 +126,9 @@ export function Sidebar() {
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-void-800/50 border border-void-700 
+              className="w-full pl-9 pr-3 py-2 bg-void-800/50 border border-void-700/50 
                        rounded-lg text-sm text-void-200 placeholder:text-void-500
-                       focus:outline-none focus:border-olympus-500/50 transition-colors"
+                       focus:outline-none focus:border-crystal-500/50 transition-colors"
             />
           </div>
         </div>
@@ -141,11 +154,12 @@ export function Sidebar() {
       </div>
 
       {/* User Section */}
-      <div className="p-3 border-t border-void-800">
+      <div className="p-3 border-t border-void-700/50">
         {!isSidebarCollapsed && user && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-olympus-500 to-olympus-700 
-                          flex items-center justify-center text-void-950 font-semibold text-sm">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-crystal-500 to-crystal-700 
+                          flex items-center justify-center text-void-950 font-semibold text-sm
+                          shadow-glow">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
@@ -196,13 +210,13 @@ function ConversationItem({ conversation, isActive, isCollapsed, onDelete }: Con
         'flex items-center gap-3 px-3 py-2.5 rounded-lg',
         'transition-all duration-150 group',
         isActive
-          ? 'bg-olympus-500/10 border border-olympus-500/30 text-void-100'
-          : 'hover:bg-void-800/50 text-void-300 hover:text-void-100'
+          ? 'bg-crystal-500/10 border border-crystal-500/30 text-void-100'
+          : 'hover:bg-void-800/50 text-void-300 hover:text-void-100 border border-transparent'
       )}
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
     >
-      <MessageSquare className={clsx('w-4 h-4 flex-shrink-0', isActive && 'text-olympus-400')} />
+      <MessageSquare className={clsx('w-4 h-4 flex-shrink-0', isActive && 'text-crystal-400')} />
       
       {!isCollapsed && (
         <>

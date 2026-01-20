@@ -13,7 +13,8 @@ import {
 } from '../mocks';
 
 // Check if we're in demo mode (no backend)
-const DEMO_MODE = true; // Set to false when backend is ready
+// Set VITE_DEMO_MODE=true in .env for demo mode
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
 interface ChatStore {
   // State
@@ -301,24 +302,22 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
       const response = await chatService.sendMessage(request);
 
+      // The response contains the assistant message
+      // Keep our optimistic user message and add the assistant response
       set((state) => ({
         messages: [
-          ...state.messages.filter((m) => m.id !== userMessage.id),
-          { ...userMessage, id: response.message.id },
+          ...state.messages, // Keep the user message we already added
+          response.message,  // Add the assistant response
         ],
         currentConversation: response.conversation,
-        conversations: state.conversations.map((c) =>
-          c.id === response.conversation.id ? response.conversation : c
-        ),
+        conversations: state.conversations.some((c) => c.id === response.conversation.id)
+          ? state.conversations.map((c) =>
+              c.id === response.conversation.id ? response.conversation : c
+            )
+          : [response.conversation, ...state.conversations],
         isSending: false,
+        isStreaming: false,
       }));
-
-      // If this was a new conversation, add it to the list
-      if (!currentConversation) {
-        set((state) => ({
-          conversations: [response.conversation, ...state.conversations],
-        }));
-      }
     } catch (error) {
       set((state) => ({
         messages: state.messages.filter((m) => m.id !== userMessage.id),

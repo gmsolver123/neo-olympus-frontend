@@ -1,37 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
 
 /* Custom theme configuration for Tailwind v4 */
 @theme {
-  /* Neo Olympus brand colors - sophisticated dark theme with gold accents */
-  --color-olympus-50: #fefce8;
-  --color-olympus-100: #fef9c3;
-  --color-olympus-200: #fef08a;
-  --color-olympus-300: #fde047;
-  --color-olympus-400: #facc15;
-  --color-olympus-500: #eab308;
-  --color-olympus-600: #ca8a04;
-  --color-olympus-700: #a16207;
-  --color-olympus-800: #854d0e;
-  --color-olympus-900: #713f12;
-  --color-olympus-950: #422006;
+  /* NeoChat brand colors - crystalline dark theme with cyan/white accents */
+  --color-crystal-50: #f0fdff;
+  --color-crystal-100: #ccfbff;
+  --color-crystal-200: #99f6ff;
+  --color-crystal-300: #66efff;
+  --color-crystal-400: #22d3ee;
+  --color-crystal-500: #06b6d4;
+  --color-crystal-600: #0891b2;
+  --color-crystal-700: #0e7490;
+  --color-crystal-800: #155e75;
+  --color-crystal-900: #164e63;
+  --color-crystal-950: #083344;
 
+  /* Void colors - deep space black */
   --color-void-50: #f8fafc;
-  --color-void-100: #f1f5f9;
-  --color-void-200: #e2e8f0;
-  --color-void-300: #cbd5e1;
-  --color-void-400: #94a3b8;
-  --color-void-500: #64748b;
-  --color-void-600: #475569;
-  --color-void-700: #334155;
-  --color-void-800: #1e293b;
-  --color-void-900: #0f172a;
-  --color-void-950: #020617;
+  --color-void-100: #e2e8f0;
+  --color-void-200: #cbd5e1;
+  --color-void-300: #94a3b8;
+  --color-void-400: #64748b;
+  --color-void-500: #475569;
+  --color-void-600: #334155;
+  --color-void-700: #1e293b;
+  --color-void-800: #0f172a;
+  --color-void-900: #080d19;
+  --color-void-950: #020408;
+
+  /* Keep olympus as alias for crystal (backwards compatibility) */
+  --color-olympus-50: var(--color-crystal-50);
+  --color-olympus-100: var(--color-crystal-100);
+  --color-olympus-200: var(--color-crystal-200);
+  --color-olympus-300: var(--color-crystal-300);
+  --color-olympus-400: var(--color-crystal-400);
+  --color-olympus-500: var(--color-crystal-500);
+  --color-olympus-600: var(--color-crystal-600);
+  --color-olympus-700: var(--color-crystal-700);
+  --color-olympus-800: var(--color-crystal-800);
+  --color-olympus-900: var(--color-crystal-900);
+  --color-olympus-950: var(--color-crystal-950);
 
   /* Typography */
-  --font-sans: 'Outfit', system-ui, sans-serif;
-  --font-display: 'Syne', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Orbitron', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Animations */
@@ -41,11 +55,14 @@
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-typing: typing 1.5s steps(3) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow-pulse: glowPulse 3s ease-in-out infinite;
 
-  /* Custom shadows */
-  --shadow-glow: 0 0 20px rgba(234, 179, 8, 0.3);
-  --shadow-glow-lg: 0 0 40px rgba(234, 179, 8, 0.4);
-  --shadow-inner-glow: inset 0 0 20px rgba(234, 179, 8, 0.1);
+  /* Custom shadows - crystalline glow */
+  --shadow-glow: 0 0 20px rgba(34, 211, 238, 0.3);
+  --shadow-glow-lg: 0 0 40px rgba(34, 211, 238, 0.4);
+  --shadow-glow-white: 0 0 30px rgba(255, 255, 255, 0.15);
+  --shadow-inner-glow: inset 0 0 20px rgba(34, 211, 238, 0.1);
 
   @keyframes fadeIn {
     0% { opacity: 0; }
@@ -71,6 +88,16 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
   }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.4; filter: blur(20px); }
+    50% { opacity: 0.7; filter: blur(25px); }
+  }
 }
 
 /* Base styles */
@@ -84,21 +111,56 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(234, 179, 8, 0.08), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(234, 179, 8, 0.04), transparent);
   min-height: 100vh;
+  position: relative;
+}
+
+/* Geometric grid background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Radial glow overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 211, 238, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(255, 255, 255, 0.03), transparent),
+    radial-gradient(ellipse 40% 30% at 0% 100%, rgba(34, 211, 238, 0.04), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 ::selection {
-  background-color: rgba(234, 179, 8, 0.3);
-  color: var(--color-olympus-100);
+  background-color: rgba(34, 211, 238, 0.3);
+  color: var(--color-crystal-100);
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -106,13 +168,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--color-void-700);
+  background-color: var(--color-void-600);
   border-radius: 9999px;
   transition: background-color 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-void-600);
+  background-color: var(--color-crystal-700);
 }
 
 /* Component classes */
@@ -126,6 +188,7 @@ body {
     border-radius: 0.5rem;
     font-weight: 500;
     transition: all 0.2s ease-out;
+    font-family: var(--font-sans);
   }
 
   .btn:focus {
@@ -141,24 +204,27 @@ body {
   }
 
   .btn-primary {
-    background-color: var(--color-olympus-500);
+    background: linear-gradient(135deg, var(--color-crystal-500), var(--color-crystal-600));
     color: var(--color-void-950);
+    border: 1px solid var(--color-crystal-400);
     box-shadow: var(--shadow-glow);
   }
 
   .btn-primary:hover {
-    background-color: var(--color-olympus-400);
+    background: linear-gradient(135deg, var(--color-crystal-400), var(--color-crystal-500));
     box-shadow: var(--shadow-glow-lg);
   }
 
   .btn-secondary {
-    background-color: var(--color-void-800);
+    background-color: rgba(30, 41, 59, 0.6);
     color: var(--color-void-100);
     border: 1px solid var(--color-void-600);
+    backdrop-filter: blur(4px);
   }
 
   .btn-secondary:hover {
-    background-color: var(--color-void-700);
+    background-color: rgba(30, 41, 59, 0.8);
+    border-color: var(--color-crystal-700);
   }
 
   .btn-ghost {
@@ -167,18 +233,19 @@ body {
   }
 
   .btn-ghost:hover {
-    color: var(--color-void-100);
-    background-color: rgba(30, 41, 59, 0.5);
+    color: var(--color-crystal-400);
+    background-color: rgba(34, 211, 238, 0.1);
   }
 
   .input {
     width: 100%;
     padding: 0.75rem 1rem;
-    background-color: rgba(15, 23, 42, 0.5);
+    background-color: rgba(8, 13, 25, 0.6);
     border: 1px solid var(--color-void-700);
     border-radius: 0.5rem;
     color: var(--color-void-100);
     transition: all 0.2s;
+    backdrop-filter: blur(4px);
   }
 
   .input::placeholder {
@@ -187,27 +254,34 @@ body {
 
   .input:focus {
     outline: none;
-    border-color: rgba(234, 179, 8, 0.5);
-    box-shadow: 0 0 0 1px rgba(234, 179, 8, 0.3);
+    border-color: rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.3);
   }
 
   .card {
-    background-color: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--color-void-800);
+    background-color: rgba(8, 13, 25, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-void-700);
     border-radius: 0.75rem;
     padding: 1.5rem;
-    box-shadow: 0 10px 15px -3px rgba(2, 6, 23, 0.5);
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
   }
 
   .glass {
-    background-color: rgba(15, 23, 42, 0.4);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(51, 65, 85, 0.5);
+    background-color: rgba(8, 13, 25, 0.5);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(34, 211, 238, 0.1);
   }
 
   .gradient-text {
-    background: linear-gradient(to right, var(--color-olympus-400), var(--color-olympus-300), var(--color-olympus-500));
+    background: linear-gradient(135deg, var(--color-crystal-300), var(--color-crystal-100), var(--color-crystal-400));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gradient-text-white {
+    background: linear-gradient(135deg, #fff, var(--color-crystal-200), #fff);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -221,19 +295,64 @@ body {
   }
 
   .chat-bubble-user {
-    background-color: rgba(234, 179, 8, 0.2);
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(34, 211, 238, 0.1));
+    border: 1px solid rgba(34, 211, 238, 0.25);
     color: var(--color-void-100);
     margin-left: auto;
     border-bottom-right-radius: 0.25rem;
   }
 
   .chat-bubble-assistant {
-    background-color: rgba(30, 41, 59, 0.8);
+    background-color: rgba(15, 23, 42, 0.8);
     border: 1px solid var(--color-void-700);
     color: var(--color-void-100);
     margin-right: auto;
     border-bottom-left-radius: 0.25rem;
+  }
+
+  /* Crystalline logo container */
+  .logo-crystal {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .logo-crystal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent, rgba(34, 211, 238, 0.1));
+    pointer-events: none;
+  }
+
+  .logo-crystal::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--color-crystal-400), transparent, var(--color-crystal-600));
+    border-radius: 14px;
+    z-index: -1;
+    opacity: 0.5;
+    filter: blur(4px);
+  }
+
+  /* Wireframe decoration */
+  .wireframe-bg {
+    position: relative;
+  }
+
+  .wireframe-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(34, 211, 238, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 211, 238, 0.02) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
   }
 }
 
@@ -255,5 +374,9 @@ body {
 
   .shadow-glow-lg {
     box-shadow: var(--shadow-glow-lg);
+  }
+
+  .shadow-glow-white {
+    box-shadow: var(--shadow-glow-white);
   }
 }

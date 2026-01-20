@@ -23,7 +23,7 @@ interface AuthStore {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-
+  
   // Actions
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
@@ -47,7 +47,7 @@ export const useAuthStore = create<AuthStore>()(
 
       login: async (credentials) => {
         set({ isLoading: true, error: null });
-
+        
         if (DEMO_MODE) {
           // Simulate API delay
           await new Promise((resolve) => setTimeout(resolve, 800));
@@ -81,7 +81,7 @@ export const useAuthStore = create<AuthStore>()(
 
       register: async (credentials) => {
         set({ isLoading: true, error: null });
-
+        
         if (DEMO_MODE) {
           // Simulate API delay
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -118,7 +118,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: async () => {
         set({ isLoading: true });
-
+        
         if (DEMO_MODE) {
           await new Promise((resolve) => setTimeout(resolve, 300));
           set({
@@ -146,12 +146,12 @@ export const useAuthStore = create<AuthStore>()(
 
       fetchUser: async () => {
         if (!get().isAuthenticated && !authService.hasStoredSession()) return;
-
+        
         if (DEMO_MODE) {
           set({ user: createDemoUser(), isAuthenticated: true });
           return;
         }
-
+        
         set({ isLoading: true });
         try {
           const user = await authService.getCurrentUser();
@@ -163,11 +163,11 @@ export const useAuthStore = create<AuthStore>()(
             set({ user: response.user, isAuthenticated: true, isLoading: false });
           } catch {
             authService.clearSession();
-            set({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-            });
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+          });
           }
         }
       },
@@ -185,7 +185,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       clearError: () => set({ error: null }),
-
+      
       setUser: (user) => set({ user, isAuthenticated: !!user }),
 
       loginDemo: () => {

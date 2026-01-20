@@ -1,5 +1,4 @@
 import { 
-  Zap, 
   Image, 
   Mic, 
   Film, 
@@ -9,6 +8,7 @@ import {
   Wallet
 } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { CrystalLogo } from '../icons';
 import { useChatStore } from '../../store/chatStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -68,14 +68,17 @@ export function EmptyState() {
       <div className="max-w-3xl w-full space-y-8 animate-fade-in">
         {/* Hero */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl 
-                        bg-gradient-to-br from-olympus-400 to-olympus-600 
-                        shadow-glow-lg mb-4">
-            <Zap className="w-8 h-8 text-void-950" />
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl 
+                        bg-void-900/80 border border-void-700/50
+                        shadow-glow-lg mb-4 animate-float logo-crystal">
+            <CrystalLogo size={64} />
           </div>
-          <h1 className="text-4xl font-display font-bold gradient-text">
-            Welcome to Neo Olympus
+          <h1 className="text-4xl font-display font-bold gradient-text-white tracking-wide">
+            Welcome to NeoChat
           </h1>
+          <p className="text-sm text-crystal-500/80 font-display tracking-wider mb-2">
+            Powered by Neo Olympus
+          </p>
           <p className="text-lg text-void-400 max-w-xl mx-auto">
             Your intelligent multimodal AI assistant that automatically chooses 
             the best model and approach for every task.
@@ -87,13 +90,14 @@ export function EmptyState() {
           {capabilities.map((cap, index) => (
             <div
               key={index}
-              className="p-4 rounded-xl bg-void-900/40 border border-void-800 
-                       hover:border-olympus-500/30 hover:bg-void-900/60
-                       transition-all duration-200 group"
+              className="p-4 rounded-xl bg-void-900/40 border border-void-700/50 
+                       hover:border-crystal-500/30 hover:bg-void-900/60
+                       transition-all duration-300 group wireframe-bg"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <cap.icon className="w-6 h-6 text-olympus-400 mb-3 
-                                 group-hover:scale-110 transition-transform" />
+              <cap.icon className="w-6 h-6 text-crystal-400 mb-3 
+                                 group-hover:scale-110 group-hover:text-crystal-300 
+                                 transition-all duration-300" />
               <h3 className="font-medium text-void-200 mb-1">{cap.title}</h3>
               <p className="text-sm text-void-500">{cap.description}</p>
             </div>
@@ -108,8 +112,8 @@ export function EmptyState() {
               <button
                 key={index}
                 onClick={handleStartChat}
-                className="px-4 py-2 rounded-full bg-void-800/50 border border-void-700
-                         text-sm text-void-300 hover:text-void-100 hover:border-olympus-500/30
+                className="px-4 py-2 rounded-full bg-void-800/50 border border-void-700/50
+                         text-sm text-void-300 hover:text-crystal-300 hover:border-crystal-500/30
                          hover:bg-void-800 transition-all duration-200"
               >
                 {suggestion.emoji} {suggestion.text}

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Zap, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Button, Input } from '../components/ui';
+import { CrystalLogo } from '../components/icons';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 
@@ -35,7 +36,7 @@ export function LoginPage() {
     loginDemo();
     addToast({
       type: 'success',
-      title: 'Welcome to Neo Olympus!',
+      title: 'Welcome to NeoChat!',
       message: 'You are now in demo mode.',
     });
     navigate('/chat');
@@ -44,22 +45,35 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-void-900 items-center justify-center p-12 relative overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-olympus-500/10 via-transparent to-purple-500/5" />
-        <div className="absolute top-1/4 -left-32 w-64 h-64 bg-olympus-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+      <div className="hidden lg:flex lg:w-1/2 bg-void-900/50 items-center justify-center p-12 relative overflow-hidden">
+        {/* Geometric grid background */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px'
+        }} />
+        
+        {/* Glowing orbs */}
+        <div className="absolute top-1/4 -left-32 w-64 h-64 bg-crystal-500/20 rounded-full blur-3xl animate-glow-pulse" />
+        <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-crystal-400/10 rounded-full blur-3xl animate-glow-pulse" style={{ animationDelay: '1.5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
         
         <div className="relative z-10 max-w-lg text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl 
-                        bg-gradient-to-br from-olympus-400 to-olympus-600 
-                        shadow-glow-lg mb-8">
-            <Zap className="w-10 h-10 text-void-950" />
+          <div className="inline-flex items-center justify-center w-28 h-28 rounded-2xl 
+                        bg-void-950/80 border border-void-700/50
+                        shadow-glow-lg mb-8 logo-crystal animate-float">
+            <CrystalLogo size={96} />
           </div>
           
-          <h1 className="text-4xl font-display font-bold mb-4">
-            <span className="gradient-text">Neo Olympus</span>
+          <h1 className="text-5xl font-display font-bold mb-2 tracking-wider">
+            <span className="gradient-text-white">NeoChat</span>
           </h1>
+          
+          <p className="text-sm text-crystal-400/70 font-display tracking-widest mb-6">
+            POWERED BY NEO OLYMPUS
+          </p>
           
           <p className="text-xl text-void-400 mb-8">
             The intelligent multimodal AI platform that adapts to your needs.
@@ -73,7 +87,7 @@ export function LoginPage() {
               'Cost optimization',
             ].map((feature, i) => (
               <div key={i} className="flex items-center gap-2 text-void-300">
-                <div className="w-1.5 h-1.5 bg-olympus-400 rounded-full" />
+                <div className="w-1.5 h-1.5 bg-crystal-400 rounded-full shadow-glow" />
                 <span className="text-sm">{feature}</span>
               </div>
             ))}
@@ -82,22 +96,34 @@ export function LoginPage() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center p-8 relative">
+        {/* Subtle grid on right panel too */}
+        <div className="absolute inset-0 opacity-50" style={{
+          backgroundImage: `
+            linear-gradient(rgba(34, 211, 238, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, 0.02) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px'
+        }} />
+        
+        <div className="w-full max-w-md space-y-8 relative z-10">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl 
-                          bg-gradient-to-br from-olympus-400 to-olympus-600 
-                          shadow-glow mb-4">
-              <Zap className="w-7 h-7 text-void-950" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl 
+                          bg-void-900/80 border border-void-700/50
+                          shadow-glow mb-4 logo-crystal">
+              <CrystalLogo size={48} />
             </div>
-            <h1 className="text-2xl font-display font-bold gradient-text">
-              Neo Olympus
+            <h1 className="text-2xl font-display font-bold gradient-text-white tracking-wider">
+              NeoChat
             </h1>
+            <p className="text-xs text-crystal-400/60 font-display tracking-widest mt-1">
+              BY NEO OLYMPUS
+            </p>
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-display font-bold text-void-100">
+            <h2 className="text-2xl font-display font-bold text-void-100 tracking-wide">
               Welcome back
             </h2>
             <p className="text-void-400">
@@ -133,7 +159,7 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="hover:text-void-200 transition-colors"
+                  className="hover:text-crystal-400 transition-colors"
                 >
                   {showPassword ? (
                     <EyeOff className="w-4 h-4" />
@@ -150,14 +176,14 @@ export function LoginPage() {
                 <input
                   type="checkbox"
                   className="w-4 h-4 rounded border-void-600 bg-void-800 
-                           text-olympus-500 focus:ring-olympus-500/30"
+                           text-crystal-500 focus:ring-crystal-500/30"
                 />
                 <span className="text-sm text-void-400">Remember me</span>
               </label>
               
               <Link
                 to="/forgot-password"
-                className="text-sm text-olympus-400 hover:text-olympus-300 transition-colors"
+                className="text-sm text-crystal-400 hover:text-crystal-300 transition-colors"
               >
                 Forgot password?
               </Link>
@@ -186,7 +212,7 @@ export function LoginPage() {
               variant="secondary"
               className="w-full"
               onClick={handleDemoLogin}
-              leftIcon={<Sparkles className="w-4 h-4 text-olympus-400" />}
+              leftIcon={<Sparkles className="w-4 h-4 text-crystal-400" />}
             >
               Try Demo Mode
             </Button>
@@ -196,7 +222,7 @@ export function LoginPage() {
             Don't have an account?{' '}
             <Link
               to="/register"
-              className="text-olympus-400 hover:text-olympus-300 font-medium transition-colors"
+              className="text-crystal-400 hover:text-crystal-300 font-medium transition-colors"
             >
               Create account
             </Link>

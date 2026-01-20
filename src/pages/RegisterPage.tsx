@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Zap, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { Button, Input } from '../components/ui';
+import { CrystalLogo } from '../components/icons';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 
@@ -44,7 +45,7 @@ export function RegisterPage() {
       addToast({
         type: 'success',
         title: 'Account created!',
-        message: 'Welcome to Neo Olympus.',
+        message: 'Welcome to NeoChat.',
       });
       navigate('/chat');
     } catch (err) {
@@ -55,22 +56,34 @@ export function RegisterPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-void-900 items-center justify-center p-12 relative overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-olympus-500/10 via-transparent to-purple-500/5" />
-        <div className="absolute top-1/4 -left-32 w-64 h-64 bg-olympus-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+      <div className="hidden lg:flex lg:w-1/2 bg-void-900/50 items-center justify-center p-12 relative overflow-hidden">
+        {/* Geometric grid background */}
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px'
+        }} />
+        
+        {/* Glowing orbs */}
+        <div className="absolute top-1/4 -left-32 w-64 h-64 bg-crystal-500/20 rounded-full blur-3xl animate-glow-pulse" />
+        <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-crystal-400/10 rounded-full blur-3xl animate-glow-pulse" style={{ animationDelay: '1.5s' }} />
         
         <div className="relative z-10 max-w-lg text-center">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl 
-                        bg-gradient-to-br from-olympus-400 to-olympus-600 
-                        shadow-glow-lg mb-8">
-            <Zap className="w-10 h-10 text-void-950" />
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl 
+                        bg-void-950/80 border border-void-700/50
+                        shadow-glow-lg mb-8 logo-crystal animate-float">
+            <CrystalLogo size={80} />
           </div>
           
-          <h1 className="text-4xl font-display font-bold mb-4">
-            <span className="gradient-text">Join Neo Olympus</span>
+          <h1 className="text-4xl font-display font-bold mb-2 tracking-wider">
+            <span className="gradient-text-white">Join NeoChat</span>
           </h1>
+          
+          <p className="text-sm text-crystal-400/70 font-display tracking-widest mb-6">
+            POWERED BY NEO OLYMPUS
+          </p>
           
           <p className="text-xl text-void-400 mb-8">
             Start your journey with the most intelligent AI assistant.
@@ -82,8 +95,8 @@ export function RegisterPage() {
               { title: 'Smart Routing', desc: 'AI automatically selects the best model' },
               { title: 'Multimodal', desc: 'Text, image, audio, and video support' },
             ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-lg bg-void-800/30 border border-void-700">
-                <CheckCircle className="w-5 h-5 text-olympus-400 flex-shrink-0 mt-0.5" />
+              <div key={i} className="flex items-start gap-3 p-4 rounded-lg bg-void-800/30 border border-void-700/50 backdrop-blur-sm">
+                <CheckCircle className="w-5 h-5 text-crystal-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-medium text-void-200">{item.title}</p>
                   <p className="text-sm text-void-500">{item.desc}</p>
@@ -95,22 +108,34 @@ export function RegisterPage() {
       </div>
 
       {/* Right Panel - Register Form */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
-        <div className="w-full max-w-md space-y-8 py-8">
+      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto relative">
+        {/* Subtle grid on right panel too */}
+        <div className="absolute inset-0 opacity-50" style={{
+          backgroundImage: `
+            linear-gradient(rgba(34, 211, 238, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34, 211, 238, 0.02) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px'
+        }} />
+        
+        <div className="w-full max-w-md space-y-8 py-8 relative z-10">
           {/* Mobile Logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl 
-                          bg-gradient-to-br from-olympus-400 to-olympus-600 
-                          shadow-glow mb-4">
-              <Zap className="w-7 h-7 text-void-950" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl 
+                          bg-void-900/80 border border-void-700/50
+                          shadow-glow mb-4 logo-crystal">
+              <CrystalLogo size={48} />
             </div>
-            <h1 className="text-2xl font-display font-bold gradient-text">
-              Neo Olympus
+            <h1 className="text-2xl font-display font-bold gradient-text-white tracking-wider">
+              NeoChat
             </h1>
+            <p className="text-xs text-crystal-400/60 font-display tracking-widest mt-1">
+              BY NEO OLYMPUS
+            </p>
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl font-display font-bold text-void-100">
+            <h2 className="text-2xl font-display font-bold text-void-100 tracking-wide">
               Create your account
             </h2>
             <p className="text-void-400">
@@ -157,7 +182,7 @@ export function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="hover:text-void-200 transition-colors"
+                    className="hover:text-crystal-400 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -175,12 +200,12 @@ export function RegisterPage() {
                   <div
                     key={i}
                     className={`flex items-center gap-2 text-xs ${
-                      req.met ? 'text-green-400' : 'text-void-500'
+                      req.met ? 'text-crystal-400' : 'text-void-500'
                     }`}
                   >
                     <div
                       className={`w-1.5 h-1.5 rounded-full ${
-                        req.met ? 'bg-green-400' : 'bg-void-600'
+                        req.met ? 'bg-crystal-400 shadow-glow' : 'bg-void-600'
                       }`}
                     />
                     {req.text}
@@ -206,15 +231,15 @@ export function RegisterPage() {
                 id="terms"
                 required
                 className="mt-1 w-4 h-4 rounded border-void-600 bg-void-800 
-                         text-olympus-500 focus:ring-olympus-500/30"
+                         text-crystal-500 focus:ring-crystal-500/30"
               />
               <label htmlFor="terms" className="text-sm text-void-400">
                 I agree to the{' '}
-                <Link to="/terms" className="text-olympus-400 hover:text-olympus-300">
+                <Link to="/terms" className="text-crystal-400 hover:text-crystal-300">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link to="/privacy" className="text-olympus-400 hover:text-olympus-300">
+                <Link to="/privacy" className="text-crystal-400 hover:text-crystal-300">
                   Privacy Policy
                 </Link>
               </label>
@@ -234,7 +259,7 @@ export function RegisterPage() {
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-olympus-400 hover:text-olympus-300 font-medium transition-colors"
+              className="text-crystal-400 hover:text-crystal-300 font-medium transition-colors"
             >
               Sign in
             </Link>

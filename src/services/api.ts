@@ -60,16 +60,16 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiError>) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-
+    
     // Handle 401 - Token expired
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       // Don't try to refresh for auth endpoints
       if (originalRequest.url?.includes('/auth/login') || 
           originalRequest.url?.includes('/auth/refresh')) {
-        setAccessToken(null);
+      setAccessToken(null);
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
-        return Promise.reject(error);
+      window.location.href = '/login';
+      return Promise.reject(error);
       }
 
       if (isRefreshing) {
@@ -111,7 +111,7 @@ api.interceptors.response.use(
     const apiError: ApiError = error.response?.data || {
       detail: error.message || 'An unexpected error occurred',
     };
-
+    
     return Promise.reject(apiError);
   }
 );

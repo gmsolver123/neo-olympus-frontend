@@ -124,7 +124,7 @@ export function ChatInput() {
   };
 
   return (
-    <div className="p-4 border-t border-void-800 bg-void-950/50 backdrop-blur-sm">
+    <div className="p-4 border-t border-void-700/50 bg-void-950/60 backdrop-blur-md">
       {/* Pending Files */}
       {pendingFiles.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
@@ -170,10 +170,10 @@ export function ChatInput() {
             onKeyDown={handleKeyDown}
             placeholder="Type your message... (Shift+Enter for new line)"
             rows={1}
-            className="w-full px-4 py-3 bg-void-800/50 border border-void-700 rounded-xl
+            className="w-full px-4 py-3 bg-void-800/50 border border-void-700/50 rounded-xl
                      text-void-100 placeholder:text-void-500 resize-none
-                     focus:outline-none focus:border-olympus-500/50 focus:ring-1 focus:ring-olympus-500/30
-                     transition-all duration-200"
+                     focus:outline-none focus:border-crystal-500/50 focus:ring-1 focus:ring-crystal-500/30
+                     transition-all duration-200 backdrop-blur-sm"
             style={{ minHeight: '48px', maxHeight: '200px' }}
           />
         </div>
@@ -235,12 +235,12 @@ function FilePreview({ file, onRemove }: FilePreviewProps) {
     <div
       className={clsx(
         'relative flex items-center gap-2 px-3 py-2 rounded-lg',
-        'bg-void-800/50 border border-void-700',
+        'bg-void-800/50 border border-void-700/50',
         file.status === 'error' && 'border-red-500/50'
       )}
     >
       {file.status === 'uploading' ? (
-        <Loader2 className="w-4 h-4 animate-spin text-olympus-400" />
+        <Loader2 className="w-4 h-4 animate-spin text-crystal-400" />
       ) : (
         getIcon()
       )}
@@ -252,7 +252,7 @@ function FilePreview({ file, onRemove }: FilePreviewProps) {
         {file.status === 'uploading' && (
           <div className="w-full h-1 bg-void-700 rounded-full mt-1">
             <div
-              className="h-full bg-olympus-500 rounded-full transition-all duration-300"
+              className="h-full bg-crystal-500 rounded-full transition-all duration-300"
               style={{ width: `${file.progress}%` }}
             />
           </div>
@@ -264,7 +264,7 @@ function FilePreview({ file, onRemove }: FilePreviewProps) {
 
       <button
         onClick={onRemove}
-        className="p-1 text-void-400 hover:text-void-200 hover:bg-void-700 
+        className="p-1 text-void-400 hover:text-void-200 hover:bg-void-700/50 
                  rounded transition-colors"
       >
         <X className="w-3.5 h-3.5" />
