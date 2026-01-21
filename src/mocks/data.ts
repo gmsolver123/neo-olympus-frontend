@@ -1,4 +1,4 @@
-import type { User, RawUser, Conversation, Message } from '../types';
+import type { RawUser, Conversation, Message } from '../types';
 
 // Mock User - matches backend User schema (without computed name)
 export const mockUser: RawUser = {

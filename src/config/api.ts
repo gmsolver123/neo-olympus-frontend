@@ -7,6 +7,13 @@ export const API_CONFIG = {
   ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
   ALLOWED_AUDIO_TYPES: ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'],
   ALLOWED_VIDEO_TYPES: ['video/mp4', 'video/webm', 'video/quicktime'],
+  ALLOWED_DOCUMENT_TYPES: [
+    'application/pdf',
+    'text/plain',
+    'text/markdown',
+    'text/csv',
+    'application/json',
+  ],
 } as const;
 
 // API Endpoints
@@ -32,11 +39,11 @@ export const ENDPOINTS = {
     SEND: '/api/v1/chat/send',
     STREAM: '/api/v1/chat/stream',
   },
-  // Files
+  // Files - Direct upload to VPS
   FILES: {
-    PRESIGNED_URL: '/api/v1/files/presigned-url',
-    UPLOAD_COMPLETE: '/api/v1/files/upload-complete',
+    UPLOAD: '/api/v1/files/upload',
     GET: (id: string) => `/api/v1/files/${id}`,
+    DOWNLOAD: (id: string) => `/api/v1/files/${id}/download`,
     DELETE: (id: string) => `/api/v1/files/${id}`,
   },
   // Models

@@ -137,19 +137,6 @@ export interface RouterDecision {
 // File Upload Types
 // ============================================================================
 
-export interface PresignedUrlRequest {
-  filename: string;
-  content_type: string;
-  size: number;
-}
-
-export interface PresignedUrlResponse {
-  upload_url: string;
-  file_url: string;
-  file_id: string;
-  expires_in: number;
-}
-
 export interface UploadedFile {
   id: string;
   url: string;
@@ -161,6 +148,8 @@ export interface UploadedFile {
   status: 'uploading' | 'processing' | 'ready' | 'error';
   progress: number;
   error?: string;
+  // For local preview before upload completes
+  localPreviewUrl?: string;
 }
 
 // ============================================================================

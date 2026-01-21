@@ -1,12 +1,24 @@
+import axios from 'axios';
 import { ENDPOINTS, API_CONFIG } from '../config/api';
-import type { PresignedUrlRequest, PresignedUrlResponse, UploadedFile } from '../types';
-import { apiDelete, apiGet, apiPost } from './api';
+import type { UploadedFile } from '../types';
+import api, { apiDelete, apiGet } from './api';
+
+// Response from backend file upload
+interface FileUploadResponse {
+  id: string;
+  url: string;
+  filename: string;
+  original_filename: string;
+  content_type: string;
+  size: number;
+  status: string;
+}
 
 export const fileService = {
-  async getPresignedUrl(request: PresignedUrlRequest): Promise<PresignedUrlResponse> {
-    return apiPost<PresignedUrlResponse>(ENDPOINTS.FILES.PRESIGNED_URL, request);
-  },
-
+  /**
+   * Upload a file directly to the VPS filesystem.
+   * Uses multipart/form-data for direct upload.
+   */
   async uploadFile(
     file: File,
     onProgress?: (progress: number) => void
@@ -16,64 +28,77 @@ export const fileService = {
       throw new Error(`File size exceeds maximum allowed (${API_CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB)`);
     }
 
-    // Get presigned URL
-    const { upload_url, file_url, file_id } = await this.getPresignedUrl({
-      filename: file.name,
-      content_type: file.type,
-      size: file.size,
-    });
+    // Validate file type
+    if (!this.isAllowedType(file.type)) {
+      throw new Error(`File type '${file.type}' is not supported`);
+    }
 
-    // Upload to S3 using presigned URL
-    const xhr = new XMLHttpRequest();
-    
-    return new Promise((resolve, reject) => {
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable && onProgress) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          onProgress(progress);
+    // Create FormData for multipart upload
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await api.post<FileUploadResponse>(
+        ENDPOINTS.FILES.UPLOAD,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total && onProgress) {
+              const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+              onProgress(progress);
+            }
+          },
         }
-      });
+      );
 
-      xhr.addEventListener('load', async () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          // Notify backend that upload is complete
-          try {
-            await apiPost(ENDPOINTS.FILES.UPLOAD_COMPLETE, { file_id });
-            resolve({
-              id: file_id,
-              url: file_url,
-              filename: file.name,
-              content_type: file.type,
-              size: file.size,
-              status: 'processing',
-              progress: 100,
-            });
-          } catch (error) {
-            reject(error);
-          }
-        } else {
-          reject(new Error(`Upload failed with status ${xhr.status}`));
-        }
-      });
+      const data = response.data;
 
-      xhr.addEventListener('error', () => {
-        reject(new Error('Upload failed'));
-      });
-
-      xhr.open('PUT', upload_url);
-      xhr.setRequestHeader('Content-Type', file.type);
-      xhr.send(file);
-    });
+      return {
+        id: data.id,
+        url: data.url,
+        filename: data.original_filename,
+        content_type: data.content_type,
+        size: data.size,
+        status: 'ready',
+        progress: 100,
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.data?.detail) {
+        throw new Error(error.response.data.detail);
+      }
+      throw error;
+    }
   },
 
+  /**
+   * Get file metadata by ID.
+   */
   async getFile(id: string): Promise<UploadedFile> {
-    return apiGet<UploadedFile>(ENDPOINTS.FILES.GET(id));
+    const response = await apiGet<FileUploadResponse>(ENDPOINTS.FILES.GET(id));
+    return {
+      id: response.id,
+      url: response.url,
+      filename: response.original_filename,
+      content_type: response.content_type,
+      size: response.size,
+      status: response.status as UploadedFile['status'],
+      progress: 100,
+    };
   },
 
+  /**
+   * Delete a file by ID.
+   */
   async deleteFile(id: string): Promise<void> {
     return apiDelete(ENDPOINTS.FILES.DELETE(id));
   },
 
+  /**
+   * Get the file type category based on MIME type.
+   */
   getFileType(mimeType: string): 'image' | 'audio' | 'video' | 'file' {
     if (API_CONFIG.ALLOWED_IMAGE_TYPES.includes(mimeType as typeof API_CONFIG.ALLOWED_IMAGE_TYPES[number])) {
       return 'image';
@@ -87,11 +112,36 @@ export const fileService = {
     return 'file';
   },
 
+  /**
+   * Check if a file type is allowed for upload.
+   */
   isAllowedType(mimeType: string): boolean {
     return [
       ...API_CONFIG.ALLOWED_IMAGE_TYPES,
       ...API_CONFIG.ALLOWED_AUDIO_TYPES,
       ...API_CONFIG.ALLOWED_VIDEO_TYPES,
+      ...API_CONFIG.ALLOWED_DOCUMENT_TYPES,
     ].includes(mimeType as never);
+  },
+
+  /**
+   * Get accepted file types string for input element.
+   */
+  getAcceptedTypes(): string {
+    return [
+      ...API_CONFIG.ALLOWED_IMAGE_TYPES,
+      ...API_CONFIG.ALLOWED_AUDIO_TYPES,
+      ...API_CONFIG.ALLOWED_VIDEO_TYPES,
+      ...API_CONFIG.ALLOWED_DOCUMENT_TYPES,
+    ].join(',');
+  },
+
+  /**
+   * Format file size for display.
+   */
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   },
 };

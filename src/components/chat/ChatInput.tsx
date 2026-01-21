@@ -1,4 +1,4 @@
-import { useState, useRef, type KeyboardEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type DragEvent } from 'react';
 import { 
   Send, 
   Paperclip, 
@@ -7,7 +7,9 @@ import {
   Image, 
   Film, 
   X,
-  Loader2
+  Loader2,
+  FileText,
+  Upload
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '../ui/Button';
@@ -15,12 +17,15 @@ import { useChatStore } from '../../store/chatStore';
 import { useUIStore } from '../../store/uiStore';
 import { fileService } from '../../services/files';
 import type { UploadedFile } from '../../types';
+import { API_CONFIG } from '../../config/api';
 
 export function ChatInput() {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
   
   const { 
     sendMessage, 
@@ -66,10 +71,7 @@ export function ChatInput() {
     textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
+  const processFiles = useCallback(async (files: FileList | File[]) => {
     for (const file of Array.from(files)) {
       if (!fileService.isAllowedType(file.type)) {
         addToast({
@@ -80,7 +82,23 @@ export function ChatInput() {
         continue;
       }
 
+      if (file.size > API_CONFIG.MAX_FILE_SIZE) {
+        addToast({
+          type: 'error',
+          title: 'File too large',
+          message: `${file.name} exceeds the ${API_CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB limit`,
+        });
+        continue;
+      }
+
       const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Create local preview URL for images
+      let localPreviewUrl: string | undefined;
+      if (file.type.startsWith('image/')) {
+        localPreviewUrl = URL.createObjectURL(file);
+      }
+
       const pendingFile: UploadedFile = {
         id: tempId,
         url: '',
@@ -89,6 +107,7 @@ export function ChatInput() {
         size: file.size,
         status: 'uploading',
         progress: 0,
+        localPreviewUrl,
       };
 
       addPendingFile(pendingFile);
@@ -111,6 +130,13 @@ export function ChatInput() {
         });
       }
     }
+  }, [addPendingFile, updatePendingFile, addToast]);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    await processFiles(files);
 
     // Reset file input
     if (fileInputRef.current) {
@@ -118,13 +144,95 @@ export function ChatInput() {
     }
   };
 
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Only set dragging to false if we're leaving the drop zone entirely
+    const relatedTarget = e.relatedTarget as Node | null;
+    if (!dropZoneRef.current?.contains(relatedTarget)) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      await processFiles(files);
+    }
+  }, [processFiles]);
+
+  // Handle paste events for images
+  useEffect(() => {
+    const handlePaste = async (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      const imageFiles: File[] = [];
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) {
+            imageFiles.push(file);
+          }
+        }
+      }
+
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        await processFiles(imageFiles);
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [processFiles]);
+
   const toggleRecording = () => {
     setIsRecording(!isRecording);
     // TODO: Implement audio recording
   };
 
   return (
-    <div className="p-4 border-t border-void-700/50 bg-void-950/60 backdrop-blur-md">
+    <div 
+      ref={dropZoneRef}
+      className={clsx(
+        "p-4 border-t border-void-700/50 bg-void-950/60 backdrop-blur-md relative",
+        "transition-all duration-200",
+        isDragging && "bg-crystal-500/10 border-crystal-500/50"
+      )}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {/* Drag overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 flex items-center justify-center bg-void-950/80 backdrop-blur-sm z-10 rounded-lg border-2 border-dashed border-crystal-500/50">
+          <div className="flex flex-col items-center gap-2 text-crystal-400">
+            <Upload className="w-8 h-8" />
+            <span className="text-sm font-medium">Drop files here to upload</span>
+            <span className="text-xs text-void-400">Images, documents, audio, video</span>
+          </div>
+        </div>
+      )}
+
       {/* Pending Files */}
       {pendingFiles.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
@@ -132,7 +240,13 @@ export function ChatInput() {
             <FilePreview
               key={file.id}
               file={file}
-              onRemove={() => removePendingFile(file.id)}
+              onRemove={() => {
+                // Revoke local preview URL when removing
+                if (file.localPreviewUrl) {
+                  URL.revokeObjectURL(file.localPreviewUrl);
+                }
+                removePendingFile(file.id);
+              }}
             />
           ))}
         </div>
@@ -145,7 +259,7 @@ export function ChatInput() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,audio/*,video/*"
+            accept={fileService.getAcceptedTypes()}
             multiple
             onChange={handleFileSelect}
             className="hidden"
@@ -155,7 +269,7 @@ export function ChatInput() {
             size="sm"
             onClick={() => fileInputRef.current?.click()}
             className="p-2"
-            title="Attach file"
+            title="Attach file (or drag & drop)"
           >
             <Paperclip className="w-5 h-5" />
           </Button>
@@ -168,7 +282,7 @@ export function ChatInput() {
             value={message}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message... (Shift+Enter for new line)"
+            placeholder="Type your message... (Shift+Enter for new line, Ctrl+V to paste images)"
             rows={1}
             className="w-full px-4 py-3 bg-void-800/50 border border-void-700/50 rounded-xl
                      text-void-100 placeholder:text-void-500 resize-none
@@ -224,13 +338,74 @@ interface FilePreviewProps {
 function FilePreview({ file, onRemove }: FilePreviewProps) {
   const isImage = file.content_type.startsWith('image/');
   const isVideo = file.content_type.startsWith('video/');
+  const isAudio = file.content_type.startsWith('audio/');
+  const isDocument = [
+    'application/pdf',
+    'text/plain',
+    'text/markdown',
+    'text/csv',
+    'application/json',
+  ].includes(file.content_type);
 
   const getIcon = () => {
     if (isImage) return <Image className="w-4 h-4" />;
     if (isVideo) return <Film className="w-4 h-4" />;
+    if (isDocument) return <FileText className="w-4 h-4" />;
     return <Paperclip className="w-4 h-4" />;
   };
 
+  // For images, show a thumbnail preview
+  if (isImage && (file.localPreviewUrl || file.url)) {
+    return (
+      <div
+        className={clsx(
+          'relative rounded-lg overflow-hidden',
+          'bg-void-800/50 border border-void-700/50',
+          file.status === 'error' && 'border-red-500/50'
+        )}
+      >
+        <img
+          src={file.localPreviewUrl || file.url}
+          alt={file.filename}
+          className="w-20 h-20 object-cover"
+        />
+        
+        {/* Upload progress overlay */}
+        {file.status === 'uploading' && (
+          <div className="absolute inset-0 bg-void-950/70 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-1">
+              <Loader2 className="w-5 h-5 animate-spin text-crystal-400" />
+              <span className="text-xs text-void-200">{file.progress}%</span>
+            </div>
+          </div>
+        )}
+
+        {/* Error overlay */}
+        {file.status === 'error' && (
+          <div className="absolute inset-0 bg-red-950/70 flex items-center justify-center">
+            <span className="text-xs text-red-300 px-1 text-center">{file.error}</span>
+          </div>
+        )}
+
+        {/* Remove button */}
+        <button
+          onClick={onRemove}
+          className="absolute top-1 right-1 p-1 bg-void-950/80 text-void-300 
+                   hover:text-void-100 rounded-full transition-colors"
+        >
+          <X className="w-3 h-3" />
+        </button>
+
+        {/* Filename tooltip on hover */}
+        <div className="absolute bottom-0 left-0 right-0 px-2 py-1 bg-void-950/80 
+                      text-xs text-void-300 truncate opacity-0 hover:opacity-100 transition-opacity">
+          {file.filename}
+        </div>
+      </div>
+    );
+  }
+
+  // For non-image files, show icon + name
   return (
     <div
       className={clsx(
@@ -242,12 +417,23 @@ function FilePreview({ file, onRemove }: FilePreviewProps) {
       {file.status === 'uploading' ? (
         <Loader2 className="w-4 h-4 animate-spin text-crystal-400" />
       ) : (
-        getIcon()
+        <div className={clsx(
+          "p-1.5 rounded",
+          isDocument && "bg-blue-500/20 text-blue-400",
+          isVideo && "bg-purple-500/20 text-purple-400",
+          isAudio && "bg-green-500/20 text-green-400",
+          !isDocument && !isVideo && !isAudio && "bg-void-700/50 text-void-400"
+        )}>
+          {getIcon()}
+        </div>
       )}
 
-      <div className="flex flex-col min-w-0">
-        <span className="text-sm text-void-200 truncate max-w-[150px]">
+      <div className="flex flex-col min-w-0 max-w-[150px]">
+        <span className="text-sm text-void-200 truncate">
           {file.filename}
+        </span>
+        <span className="text-xs text-void-500">
+          {fileService.formatFileSize(file.size)}
         </span>
         {file.status === 'uploading' && (
           <div className="w-full h-1 bg-void-700 rounded-full mt-1">
@@ -258,14 +444,14 @@ function FilePreview({ file, onRemove }: FilePreviewProps) {
           </div>
         )}
         {file.status === 'error' && (
-          <span className="text-xs text-red-400">{file.error}</span>
+          <span className="text-xs text-red-400 truncate">{file.error}</span>
         )}
       </div>
 
       <button
         onClick={onRemove}
         className="p-1 text-void-400 hover:text-void-200 hover:bg-void-700/50 
-                 rounded transition-colors"
+                 rounded transition-colors ml-auto"
       >
         <X className="w-3.5 h-3.5" />
       </button>

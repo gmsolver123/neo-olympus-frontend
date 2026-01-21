@@ -1,6 +1,6 @@
 import { ENDPOINTS } from '../config/api';
-import type { AuthResponse, LoginCredentials, RegisterCredentials, User, RawUser, transformUserData } from '../types';
-import api, { apiGet, setAccessToken } from './api';
+import type { AuthResponse, LoginCredentials, RegisterCredentials, User, RawUser } from '../types';
+import api, { apiGet, setAccessToken, getAccessToken } from './api';
 
 // Storage keys
 const REFRESH_TOKEN_KEY = 'refresh_token';
