@@ -8,7 +8,6 @@ import {
   Wallet
 } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { CrystalLogo } from '../icons';
 import { useChatStore } from '../../store/chatStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -64,57 +63,55 @@ export function EmptyState() {
   ];
 
   return (
-    <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
-      <div className="max-w-3xl w-full space-y-8 animate-fade-in">
+    <div className="flex-1 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <div className="max-w-3xl w-full space-y-6 sm:space-y-8 animate-fade-in">
         {/* Hero */}
-        <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl 
-                        bg-void-900/80 border border-void-700/50
-                        shadow-glow-lg mb-4 animate-float logo-crystal">
-            <CrystalLogo size={64} />
+        <div className="text-center space-y-3 sm:space-y-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl 
+                        bg-[var(--color-accent)] mb-2 sm:mb-4">
+            <svg className="w-7 h-7 sm:w-10 sm:h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
           </div>
-          <h1 className="text-4xl font-display font-bold gradient-text-white tracking-wide">
-            Welcome to NeoChat
+          <h1 className="text-2xl sm:text-4xl font-semibold text-[var(--color-text-primary)]">
+            Welcome to Neo Olympus
           </h1>
-          <p className="text-sm text-crystal-500/80 font-display tracking-wider mb-2">
-            Powered by Neo Olympus
-          </p>
-          <p className="text-lg text-void-400 max-w-xl mx-auto">
+          <p className="text-base sm:text-lg text-[var(--color-text-secondary)] max-w-xl mx-auto px-2">
             Your intelligent multimodal AI assistant that automatically chooses 
             the best model and approach for every task.
           </p>
         </div>
 
         {/* Capabilities Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {capabilities.map((cap, index) => (
             <div
               key={index}
-              className="p-4 rounded-xl bg-void-900/40 border border-void-700/50 
-                       hover:border-crystal-500/30 hover:bg-void-900/60
-                       transition-all duration-300 group wireframe-bg"
-              style={{ animationDelay: `${index * 50}ms` }}
+              className="p-3 sm:p-4 rounded-xl bg-[var(--color-bg-secondary)] border border-[var(--color-border)] 
+                       hover:border-[var(--color-accent)] hover:bg-[var(--color-surface-hover)]
+                       transition-all duration-200 group"
             >
-              <cap.icon className="w-6 h-6 text-crystal-400 mb-3 
-                                 group-hover:scale-110 group-hover:text-crystal-300 
-                                 transition-all duration-300" />
-              <h3 className="font-medium text-void-200 mb-1">{cap.title}</h3>
-              <p className="text-sm text-void-500">{cap.description}</p>
+              <cap.icon className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--color-accent)] mb-2 sm:mb-3 
+                                 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="font-medium text-[var(--color-text-primary)] mb-1 text-sm sm:text-base">{cap.title}</h3>
+              <p className="text-xs sm:text-sm text-[var(--color-text-tertiary)]">{cap.description}</p>
             </div>
           ))}
         </div>
 
-        {/* Suggestions */}
-        <div className="space-y-3">
-          <p className="text-sm text-void-500 text-center">Try asking about...</p>
+        {/* Suggestions - Hide on very small screens, show fewer on mobile */}
+        <div className="space-y-3 hidden sm:block">
+          <p className="text-sm text-[var(--color-text-tertiary)] text-center">Try asking about...</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {suggestions.map((suggestion, index) => (
+            {suggestions.slice(0, 4).map((suggestion, index) => (
               <button
                 key={index}
                 onClick={handleStartChat}
-                className="px-4 py-2 rounded-full bg-void-800/50 border border-void-700/50
-                         text-sm text-void-300 hover:text-crystal-300 hover:border-crystal-500/30
-                         hover:bg-void-800 transition-all duration-200"
+                className="px-3 sm:px-4 py-2 rounded-full bg-[var(--color-bg-secondary)] border border-[var(--color-border)]
+                         text-xs sm:text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent)]
+                         hover:bg-[var(--color-surface-hover)] transition-all duration-200"
               >
                 {suggestion.emoji} {suggestion.text}
               </button>

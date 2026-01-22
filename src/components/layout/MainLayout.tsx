@@ -11,7 +11,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const { isSidebarOpen } = useUIStore();
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen h-[100dvh] overflow-hidden bg-[var(--color-bg)]">
       {/* Sidebar - hidden on mobile by default */}
       <div
         className={clsx(
@@ -26,13 +26,13 @@ export function MainLayout({ children }: MainLayoutProps) {
       {/* Mobile sidebar overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-void-950/80 backdrop-blur-sm z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => useUIStore.getState().setSidebarOpen(false)}
         />
       )}
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
         {children}
       </main>
     </div>

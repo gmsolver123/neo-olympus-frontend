@@ -7,6 +7,8 @@ export interface User {
   email: string;
   full_name: string | null;
   bio?: string | null;
+  avatar_url?: string | null;
+  oauth_provider?: string | null;
   is_active: boolean;
   plan: 'free' | 'pro' | 'enterprise';
   created_at: string;
@@ -20,6 +22,8 @@ export interface RawUser {
   email: string;
   full_name: string | null;
   bio?: string | null;
+  avatar_url?: string | null;
+  oauth_provider?: string | null;
   is_active: boolean;
   plan: 'free' | 'pro' | 'enterprise';
   created_at: string;

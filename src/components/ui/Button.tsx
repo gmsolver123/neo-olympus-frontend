@@ -27,40 +27,43 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const baseStyles = `
       inline-flex items-center justify-center gap-2 font-medium
-      transition-all duration-200 ease-out
-      focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-void-950
+      transition-all duration-150 ease-out
+      focus:outline-none focus:ring-2 focus:ring-offset-2
       disabled:opacity-50 disabled:cursor-not-allowed
       rounded-lg
     `;
 
     const variants = {
       primary: `
-        bg-olympus-500 text-void-950 
-        hover:bg-olympus-400 
-        focus:ring-olympus-500 
-        shadow-glow hover:shadow-glow-lg
+        bg-[var(--color-accent)] text-white
+        hover:bg-[var(--color-accent-hover)]
+        focus:ring-[var(--color-accent)]
+        focus:ring-offset-[var(--color-bg)]
       `,
       secondary: `
-        bg-void-800 text-void-100 
-        hover:bg-void-700 
-        focus:ring-void-500 
-        border border-void-600
+        bg-[var(--color-surface)] text-[var(--color-text-primary)]
+        hover:bg-[var(--color-surface-hover)]
+        focus:ring-[var(--color-accent)]
+        focus:ring-offset-[var(--color-bg)]
+        border border-[var(--color-border)]
       `,
       ghost: `
-        bg-transparent text-void-300 
-        hover:text-void-100 hover:bg-void-800/50 
-        focus:ring-void-500
+        bg-transparent text-[var(--color-text-secondary)]
+        hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]
+        focus:ring-[var(--color-accent)]
+        focus:ring-offset-[var(--color-bg)]
       `,
       danger: `
-        bg-red-600 text-white 
-        hover:bg-red-500 
-        focus:ring-red-500
+        bg-[var(--color-error)] text-white
+        hover:bg-red-600
+        focus:ring-[var(--color-error)]
+        focus:ring-offset-[var(--color-bg)]
       `,
     };
 
     const sizes = {
       sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-sm',
+      md: 'px-4 py-2.5 text-sm',
       lg: 'px-6 py-3 text-base',
     };
 

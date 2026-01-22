@@ -1,22 +1,47 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff, Check } from 'lucide-react';
 import { Button, Input } from '../components/ui';
-import { CrystalLogo } from '../components/icons';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
+import { OAuthButtons } from '../components/auth';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { register, isLoading, error, clearError } = useAuthStore();
   const { addToast } = useUIStore();
   
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState('');
+
+  // Handle OAuth callback (same logic as login page)
+  useEffect(() => {
+    const token = searchParams.get('token');
+    const refreshToken = searchParams.get('refresh_token');
+    const oauthError = searchParams.get('error');
+
+    if (oauthError) {
+      addToast({
+        type: 'error',
+        title: 'Authentication failed',
+        message: oauthError,
+      });
+    } else if (token && refreshToken) {
+      localStorage.setItem('access_token', token);
+      localStorage.setItem('refresh_token', refreshToken);
+      navigate('/chat');
+      addToast({
+        type: 'success',
+        title: 'Welcome!',
+        message: 'Your account has been created.',
+      });
+    }
+  }, [searchParams, navigate, addToast]);
 
   const passwordRequirements = [
     { met: password.length >= 8, text: 'At least 8 characters' },
@@ -25,17 +50,14 @@ export function RegisterPage() {
     { met: /[0-9]/.test(password), text: 'One number' },
   ];
 
+  const allRequirementsMet = passwordRequirements.every((req) => req.met);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     setValidationError('');
 
-    if (password !== confirmPassword) {
-      setValidationError('Passwords do not match');
-      return;
-    }
-
-    if (!passwordRequirements.every((req) => req.met)) {
+    if (!allRequirementsMet) {
       setValidationError('Please meet all password requirements');
       return;
     }
@@ -45,7 +67,7 @@ export function RegisterPage() {
       addToast({
         type: 'success',
         title: 'Account created!',
-        message: 'Welcome to NeoChat.',
+        message: 'Welcome to Neo Olympus.',
       });
       navigate('/chat');
     } catch (err) {
@@ -54,135 +76,79 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Panel - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-void-900/50 items-center justify-center p-12 relative overflow-hidden">
-        {/* Geometric grid background */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
-            linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px'
-        }} />
-        
-        {/* Glowing orbs */}
-        <div className="absolute top-1/4 -left-32 w-64 h-64 bg-crystal-500/20 rounded-full blur-3xl animate-glow-pulse" />
-        <div className="absolute bottom-1/4 -right-32 w-64 h-64 bg-crystal-400/10 rounded-full blur-3xl animate-glow-pulse" style={{ animationDelay: '1.5s' }} />
-        
-        <div className="relative z-10 max-w-lg text-center">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl 
-                        bg-void-950/80 border border-void-700/50
-                        shadow-glow-lg mb-8 logo-crystal animate-float">
-            <CrystalLogo size={80} />
-          </div>
-          
-          <h1 className="text-4xl font-display font-bold mb-2 tracking-wider">
-            <span className="gradient-text-white">Join NeoChat</span>
-          </h1>
-          
-          <p className="text-sm text-crystal-400/70 font-display tracking-widest mb-6">
-            POWERED BY NEO OLYMPUS
-          </p>
-          
-          <p className="text-xl text-void-400 mb-8">
-            Start your journey with the most intelligent AI assistant.
-          </p>
-          
-          <div className="space-y-4 text-left">
-            {[
-              { title: 'Free Tier', desc: 'Access to open-source models at no cost' },
-              { title: 'Smart Routing', desc: 'AI automatically selects the best model' },
-              { title: 'Multimodal', desc: 'Text, image, audio, and video support' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-lg bg-void-800/30 border border-void-700/50 backdrop-blur-sm">
-                <CheckCircle className="w-5 h-5 text-crystal-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-void-200">{item.title}</p>
-                  <p className="text-sm text-void-500">{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+    <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
+      {/* Header with theme toggle */}
+      <div className="flex justify-end p-4">
+        <ThemeToggle />
       </div>
 
-      {/* Right Panel - Register Form */}
-      <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto relative">
-        {/* Subtle grid on right panel too */}
-        <div className="absolute inset-0 opacity-50" style={{
-          backgroundImage: `
-            linear-gradient(rgba(34, 211, 238, 0.02) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34, 211, 238, 0.02) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px'
-        }} />
-        
-        <div className="w-full max-w-md space-y-8 py-8 relative z-10">
-          {/* Mobile Logo */}
-          <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl 
-                          bg-void-900/80 border border-void-700/50
-                          shadow-glow mb-4 logo-crystal">
-              <CrystalLogo size={48} />
+      {/* Main content */}
+      <div className="flex-1 flex items-center justify-center px-4 pb-16">
+        <div className="w-full max-w-[400px] space-y-8">
+          {/* Logo and title */}
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-accent)] mb-4">
+              <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
             </div>
-            <h1 className="text-2xl font-display font-bold gradient-text-white tracking-wider">
-              NeoChat
-            </h1>
-            <p className="text-xs text-crystal-400/60 font-display tracking-widest mt-1">
-              BY NEO OLYMPUS
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <h2 className="text-2xl font-display font-bold text-void-100 tracking-wide">
+            <h1 className="text-2xl font-semibold text-[var(--color-text-primary)]">
               Create your account
-            </h2>
-            <p className="text-void-400">
-              Get started with your free account today
+            </h1>
+            <p className="mt-2 text-[var(--color-text-secondary)]">
+              Get started with Neo Olympus
             </p>
           </div>
 
+          {/* Error message */}
           {(error || validationError) && (
-            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30">
-              <p className="text-sm text-red-400">{error || validationError}</p>
+            <div className="p-4 rounded-lg bg-[var(--color-error-light)] border border-[var(--color-error)]">
+              <p className="text-sm text-[var(--color-error)]">{error || validationError}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* OAuth buttons */}
+          <OAuthButtons />
+
+          {/* Divider */}
+          <div className="divider">or</div>
+
+          {/* Registration form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Full Name"
+              label="Full name"
               type="text"
-              placeholder="John Doe"
+              placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              leftIcon={<User className="w-4 h-4" />}
               required
+              autoComplete="name"
             />
 
             <Input
-              label="Email"
+              label="Email address"
               type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              leftIcon={<Mail className="w-4 h-4" />}
               required
+              autoComplete="email"
             />
 
             <div className="space-y-3">
               <Input
                 label="Password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Create a strong password"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4" />}
                 rightIcon={
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="hover:text-crystal-400 transition-colors"
+                    className="hover:text-[var(--color-text-primary)] transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -192,54 +158,47 @@ export function RegisterPage() {
                   </button>
                 }
                 required
+                autoComplete="new-password"
               />
 
               {/* Password requirements */}
-              <div className="grid grid-cols-2 gap-2">
-                {passwordRequirements.map((req, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center gap-2 text-xs ${
-                      req.met ? 'text-crystal-400' : 'text-void-500'
-                    }`}
-                  >
+              {password && (
+                <div className="grid grid-cols-2 gap-2 py-2">
+                  {passwordRequirements.map((req, i) => (
                     <div
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        req.met ? 'bg-crystal-400 shadow-glow' : 'bg-void-600'
+                      key={i}
+                      className={`flex items-center gap-2 text-xs transition-colors ${
+                        req.met ? 'text-[var(--color-success)]' : 'text-[var(--color-text-tertiary)]'
                       }`}
-                    />
-                    {req.text}
-                  </div>
-                ))}
-              </div>
+                    >
+                      {req.met ? (
+                        <Check className="w-3.5 h-3.5" />
+                      ) : (
+                        <div className="w-3.5 h-3.5 rounded-full border border-current" />
+                      )}
+                      {req.text}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <Input
-              label="Confirm Password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              leftIcon={<Lock className="w-4 h-4" />}
-              error={confirmPassword && password !== confirmPassword ? 'Passwords do not match' : undefined}
-              required
-            />
-
-            <div className="flex items-start gap-2">
+            <div className="flex items-start gap-2 py-2">
               <input
                 type="checkbox"
                 id="terms"
                 required
-                className="mt-1 w-4 h-4 rounded border-void-600 bg-void-800 
-                         text-crystal-500 focus:ring-crystal-500/30"
+                className="mt-0.5 w-4 h-4 rounded border-[var(--color-border)] 
+                         bg-[var(--color-surface)] text-[var(--color-accent)] 
+                         focus:ring-[var(--color-accent)] focus:ring-offset-0"
               />
-              <label htmlFor="terms" className="text-sm text-void-400">
+              <label htmlFor="terms" className="text-sm text-[var(--color-text-secondary)]">
                 I agree to the{' '}
-                <Link to="/terms" className="text-crystal-400 hover:text-crystal-300">
+                <Link to="/terms" className="text-[var(--color-accent)] hover:underline">
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link to="/privacy" className="text-crystal-400 hover:text-crystal-300">
+                <Link to="/privacy" className="text-[var(--color-accent)] hover:underline">
                   Privacy Policy
                 </Link>
               </label>
@@ -251,20 +210,28 @@ export function RegisterPage() {
               className="w-full"
               isLoading={isLoading}
             >
-              Create Account
+              Continue
             </Button>
           </form>
 
-          <p className="text-center text-void-400">
+          {/* Sign in link */}
+          <p className="text-center text-[var(--color-text-secondary)]">
             Already have an account?{' '}
             <Link
               to="/login"
-              className="text-crystal-400 hover:text-crystal-300 font-medium transition-colors"
+              className="text-[var(--color-accent)] hover:underline font-medium"
             >
               Sign in
             </Link>
           </p>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center py-4 text-sm text-[var(--color-text-tertiary)]">
+        <a href="#" className="hover:underline">Terms of Use</a>
+        {' · '}
+        <a href="#" className="hover:underline">Privacy Policy</a>
       </div>
     </div>
   );

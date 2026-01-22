@@ -43,31 +43,33 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
   return (
     <div
       className={clsx(
-        'flex gap-3 px-4 py-3 group',
+        'flex gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 group',
         isUser ? 'flex-row-reverse' : 'flex-row'
       )}
     >
       {/* Avatar */}
       <div
         className={clsx(
-          'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0',
+          'w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center flex-shrink-0',
           isUser
-            ? 'bg-gradient-to-br from-crystal-400 to-crystal-600 shadow-glow'
-            : 'bg-void-800/80 border border-void-600'
+            ? 'bg-[var(--color-accent)]'
+            : 'bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]'
         )}
       >
         {isUser ? (
-          <User className="w-4 h-4 text-void-950" />
+          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
         ) : (
-          <Bot className="w-4 h-4 text-crystal-400" />
+          <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--color-accent)]" />
         )}
       </div>
 
       {/* Message Content */}
       <div
         className={clsx(
-          'max-w-[75%] flex flex-col gap-2',
-          isUser ? 'items-end' : 'items-start'
+          'flex flex-col gap-2 min-w-0',
+          isUser 
+            ? 'max-w-[85%] sm:max-w-[75%] items-end' 
+            : 'flex-1 items-start'
         )}
       >
         {/* Media Content */}
@@ -81,22 +83,26 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
         {(message.content.some((c) => c.type === 'text') || displayContent) && (
           <div
             className={clsx(
-              'px-4 py-3 rounded-2xl',
+              'px-3 py-2 sm:px-4 sm:py-3 rounded-2xl',
               isUser
-                ? 'bg-gradient-to-br from-crystal-500/20 to-crystal-600/10 border border-crystal-500/30 text-void-100 rounded-br-md'
-                : 'bg-void-800/60 border border-void-700/50 text-void-100 rounded-bl-md backdrop-blur-sm'
+                ? 'bg-[var(--color-accent)] text-white rounded-br-md'
+                : 'bg-[var(--color-bg-secondary)] border border-[var(--color-border)] text-[var(--color-text-primary)] rounded-bl-md'
             )}
           >
-            <div className="prose prose-invert prose-sm max-w-none
-                          prose-p:my-2 prose-p:leading-relaxed
-                          prose-strong:text-crystal-300 prose-strong:font-semibold
-                          prose-em:text-void-200
-                          prose-code:text-crystal-400 prose-code:bg-void-900/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
-                          prose-pre:bg-void-900/80 prose-pre:border prose-pre:border-void-700/50 prose-pre:rounded-lg
-                          prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5
-                          prose-headings:text-void-100 prose-headings:font-semibold
-                          prose-a:text-crystal-400 prose-a:no-underline hover:prose-a:underline
-                          prose-blockquote:border-crystal-500/50 prose-blockquote:text-void-300">
+            <div className={clsx(
+              "prose prose-sm max-w-none break-words",
+              isUser 
+                ? "prose-invert prose-p:text-white prose-strong:text-white prose-em:text-white/90" 
+                : "prose-p:text-[var(--color-text-primary)] prose-strong:text-[var(--color-text-primary)] prose-em:text-[var(--color-text-secondary)]",
+              "prose-p:my-1 sm:prose-p:my-2 prose-p:leading-relaxed",
+              "prose-code:text-[var(--color-accent)] prose-code:bg-[var(--color-bg-tertiary)] prose-code:px-1 sm:prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-xs sm:prose-code:text-sm prose-code:before:content-none prose-code:after:content-none prose-code:break-all",
+              "prose-pre:bg-[var(--color-bg-tertiary)] prose-pre:border prose-pre:border-[var(--color-border)] prose-pre:rounded-lg prose-pre:overflow-x-auto prose-pre:text-xs sm:prose-pre:text-sm",
+              "prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5",
+              "prose-headings:text-[var(--color-text-primary)] prose-headings:font-semibold",
+              "prose-a:text-[var(--color-accent)] prose-a:no-underline hover:prose-a:underline prose-a:break-all",
+              "prose-blockquote:border-[var(--color-accent)] prose-blockquote:text-[var(--color-text-secondary)]",
+              "[&>*]:text-sm sm:[&>*]:text-base"
+            )}>
               {isUser ? (
                 displayContent || message.content
                   .filter((c) => c.type === 'text')
@@ -112,7 +118,7 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
               )}
               
               {isStreaming && (
-                <span className="inline-block w-2 h-4 bg-crystal-400 ml-1 animate-typing" />
+                <span className="inline-block w-2 h-4 bg-[var(--color-accent)] ml-1 animate-pulse" />
               )}
             </div>
           </div>
@@ -134,8 +140,8 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
 
         {/* Message Metadata */}
         {!isUser && message.model_used && (
-          <div className="flex items-center gap-2 text-xs text-void-500">
-            <span className="text-crystal-500/70">{message.model_used}</span>
+          <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
+            <span className="text-[var(--color-accent)]">{message.model_used}</span>
             {message.tokens_output && (
               <>
                 <span>•</span>
@@ -164,16 +170,16 @@ function MediaContent({ content }: MediaContentProps) {
 
   if (content.type === 'image') {
     return (
-      <div className="relative rounded-lg overflow-hidden border border-void-700/50">
+      <div className="relative rounded-lg overflow-hidden border border-[var(--color-border)]">
         <img
           src={content.url || content.thumbnail_url}
           alt={content.filename || 'Image'}
-          className="max-w-sm max-h-64 object-cover"
+          className="max-w-full sm:max-w-sm max-h-48 sm:max-h-64 object-cover"
         />
         {content.filename && (
           <div className="absolute bottom-0 left-0 right-0 px-3 py-2 
-                        bg-gradient-to-t from-void-950/90 to-transparent">
-            <span className="text-xs text-void-300">{content.filename}</span>
+                        bg-gradient-to-t from-black/80 to-transparent">
+            <span className="text-xs text-white">{content.filename}</span>
           </div>
         )}
       </div>
@@ -182,13 +188,13 @@ function MediaContent({ content }: MediaContentProps) {
 
   if (content.type === 'audio') {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 rounded-lg 
-                    bg-void-800/50 border border-void-700/50 min-w-[250px]">
+      <div className="flex items-center gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg 
+                    bg-[var(--color-bg-secondary)] border border-[var(--color-border)] min-w-[200px] sm:min-w-[250px]">
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-10 h-10 rounded-full bg-crystal-500/20 border border-crystal-500/30
-                   flex items-center justify-center text-crystal-400 
-                   hover:bg-crystal-500/30 transition-colors"
+          className="w-10 h-10 rounded-full bg-[var(--color-accent-light)]
+                   flex items-center justify-center text-[var(--color-accent)] 
+                   hover:bg-[var(--color-accent)] hover:text-white transition-colors"
         >
           {isPlaying ? (
             <Pause className="w-4 h-4" />
@@ -197,43 +203,43 @@ function MediaContent({ content }: MediaContentProps) {
           )}
         </button>
         <div className="flex-1">
-          <p className="text-sm text-void-200 truncate">{content.filename || 'Audio'}</p>
-          <p className="text-xs text-void-500">
+          <p className="text-sm text-[var(--color-text-primary)] truncate">{content.filename || 'Audio'}</p>
+          <p className="text-xs text-[var(--color-text-tertiary)]">
             {content.duration ? `${Math.floor(content.duration / 60)}:${(content.duration % 60).toString().padStart(2, '0')}` : '--:--'}
           </p>
         </div>
-        <Volume2 className="w-4 h-4 text-void-500" />
+        <Volume2 className="w-4 h-4 text-[var(--color-text-tertiary)]" />
       </div>
     );
   }
 
   if (content.type === 'video') {
     return (
-      <div className="relative rounded-lg overflow-hidden border border-void-700/50">
+      <div className="relative rounded-lg overflow-hidden border border-[var(--color-border)]">
         {content.thumbnail_url ? (
           <img
             src={content.thumbnail_url}
             alt={content.filename || 'Video thumbnail'}
-            className="max-w-sm max-h-64 object-cover"
+            className="max-w-full sm:max-w-sm max-h-48 sm:max-h-64 object-cover"
           />
         ) : (
-          <div className="w-64 h-36 bg-void-800 flex items-center justify-center">
-            <FileText className="w-8 h-8 text-void-500" />
+          <div className="w-full sm:w-64 h-32 sm:h-36 bg-[var(--color-bg-tertiary)] flex items-center justify-center">
+            <FileText className="w-8 h-8 text-[var(--color-text-tertiary)]" />
           </div>
         )}
         <div className="absolute inset-0 flex items-center justify-center">
           <button
-            className="w-12 h-12 rounded-full bg-void-950/80 border border-crystal-500/30
-                     flex items-center justify-center text-crystal-400 
-                     hover:bg-void-950/90 hover:border-crystal-400/50 transition-colors"
+            className="w-12 h-12 rounded-full bg-black/60
+                     flex items-center justify-center text-white 
+                     hover:bg-black/80 transition-colors"
           >
             <Play className="w-5 h-5 ml-0.5" />
           </button>
         </div>
         {content.filename && (
           <div className="absolute bottom-0 left-0 right-0 px-3 py-2 
-                        bg-gradient-to-t from-void-950/90 to-transparent">
-            <span className="text-xs text-void-300">{content.filename}</span>
+                        bg-gradient-to-t from-black/80 to-transparent">
+            <span className="text-xs text-white">{content.filename}</span>
           </div>
         )}
       </div>
@@ -243,9 +249,9 @@ function MediaContent({ content }: MediaContentProps) {
   // Generic file
   return (
     <div className="flex items-center gap-3 px-4 py-3 rounded-lg 
-                  bg-void-800/50 border border-void-700/50">
-      <FileText className="w-5 h-5 text-void-400" />
-      <span className="text-sm text-void-200">{content.filename || 'File'}</span>
+                  bg-[var(--color-bg-secondary)] border border-[var(--color-border)]">
+      <FileText className="w-5 h-5 text-[var(--color-text-tertiary)]" />
+      <span className="text-sm text-[var(--color-text-primary)]">{content.filename || 'File'}</span>
     </div>
   );
 }
@@ -261,8 +267,8 @@ function ActionButton({ icon: Icon, onClick, label }: ActionButtonProps) {
     <button
       onClick={onClick}
       title={label}
-      className="p-1.5 text-void-500 hover:text-crystal-400 hover:bg-void-800/50 
-               rounded-lg transition-colors"
+      className="p-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] 
+               hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors"
     >
       <Icon className="w-3.5 h-3.5" />
     </button>

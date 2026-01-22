@@ -8,11 +8,12 @@ import {
   Trash2, 
   ChevronLeft,
   ChevronRight,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '../ui/Button';
-import { CrystalLogo } from '../icons';
+import { ThemeToggle } from '../ui/ThemeToggle';
 import { useAuthStore } from '../../store/authStore';
 import { useChatStore } from '../../store/chatStore';
 import { useUIStore } from '../../store/uiStore';
@@ -22,7 +23,7 @@ export function Sidebar() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const { conversations, currentConversation, createConversation, deleteConversation } = useChatStore();
-  const { isSidebarCollapsed, toggleSidebarCollapse } = useUIStore();
+  const { isSidebarCollapsed, toggleSidebarCollapse, setSidebarOpen } = useUIStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -59,60 +60,73 @@ export function Sidebar() {
   return (
     <aside
       className={clsx(
-        'flex flex-col h-screen bg-void-900/70 border-r border-void-700/50',
-        'transition-all duration-300 ease-out backdrop-blur-sm',
+        'flex flex-col h-screen bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)]',
+        'transition-all duration-300 ease-out',
         isSidebarCollapsed ? 'w-16' : 'w-72'
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-void-700/50">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
         {!isSidebarCollapsed && (
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="logo-crystal w-10 h-10 bg-void-900/80 rounded-xl p-1 
-                          shadow-glow transition-all duration-300 group-hover:shadow-glow-lg">
-              <CrystalLogo size={32} />
+            <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)] flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
             </div>
-            <div className="flex flex-col">
-              <span className="font-display font-bold text-void-50 text-lg tracking-wider">
-                NeoChat
-              </span>
-              <span className="text-[10px] text-void-400 tracking-wide -mt-0.5">
-                by Neo Olympus
-              </span>
-            </div>
+            <span className="font-semibold text-[var(--color-text-primary)]">
+              Neo Olympus
+            </span>
           </Link>
         )}
         {isSidebarCollapsed && (
-          <div className="logo-crystal w-10 h-10 bg-void-900/80 rounded-xl p-1 shadow-glow mx-auto">
-            <CrystalLogo size={32} />
+          <div className="w-9 h-9 rounded-lg bg-[var(--color-accent)] flex items-center justify-center mx-auto">
+            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
           </div>
         )}
-        <button
-          onClick={toggleSidebarCollapse}
-          className={clsx(
-            'p-2 text-void-400 hover:text-crystal-400 hover:bg-void-800/50',
-            'rounded-lg transition-colors',
-            isSidebarCollapsed && 'hidden lg:block absolute right-2'
-          )}
-        >
-          {isSidebarCollapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
-        </button>
+        <div className="flex items-center gap-1">
+          {/* Close button - only on mobile */}
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]
+                     hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors lg:hidden"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          {/* Collapse button - only on desktop */}
+          <button
+            onClick={toggleSidebarCollapse}
+            className={clsx(
+              'p-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]',
+              'hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors hidden lg:block',
+              isSidebarCollapsed && 'absolute right-2'
+            )}
+          >
+            {isSidebarCollapsed ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       {/* New Chat Button */}
       <div className="p-3">
         <Button
-          variant="primary"
-          className={clsx('w-full', isSidebarCollapsed && 'px-2')}
+          variant="secondary"
+          className={clsx('w-full justify-start', isSidebarCollapsed && 'px-2 justify-center')}
           onClick={handleNewChat}
           isLoading={isCreating}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          {!isSidebarCollapsed && 'New Chat'}
+          {!isSidebarCollapsed && 'New chat'}
         </Button>
       </div>
 
@@ -120,15 +134,15 @@ export function Sidebar() {
       {!isSidebarCollapsed && (
         <div className="px-3 pb-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-void-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-tertiary)]" />
             <input
               type="text"
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-void-800/50 border border-void-700/50 
-                       rounded-lg text-sm text-void-200 placeholder:text-void-500
-                       focus:outline-none focus:border-crystal-500/50 transition-colors"
+              className="w-full pl-9 pr-3 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] 
+                       rounded-lg text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-placeholder)]
+                       focus:outline-none focus:border-[var(--color-accent)] transition-colors"
             />
           </div>
         </div>
@@ -147,45 +161,53 @@ export function Sidebar() {
         ))}
 
         {filteredConversations.length === 0 && !isSidebarCollapsed && (
-          <div className="text-center py-8 text-void-500 text-sm">
+          <div className="text-center py-8 text-[var(--color-text-tertiary)] text-sm">
             {searchQuery ? 'No conversations found' : 'No conversations yet'}
           </div>
         )}
       </div>
 
       {/* User Section */}
-      <div className="p-3 border-t border-void-700/50">
+      <div className="p-3 border-t border-[var(--color-border)]">
         {!isSidebarCollapsed && user && (
           <div className="flex items-center gap-3 px-2 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-crystal-500 to-crystal-700 
-                          flex items-center justify-center text-void-950 font-semibold text-sm
-                          shadow-glow">
-              {user.name.charAt(0).toUpperCase()}
-            </div>
+            {user.avatar_url ? (
+              <img 
+                src={user.avatar_url} 
+                alt={user.name}
+                className="w-8 h-8 rounded-full"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-[var(--color-accent)] 
+                            flex items-center justify-center text-white font-medium text-sm">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-void-200 truncate">{user.name}</p>
-              <p className="text-xs text-void-500 truncate">{user.email}</p>
+              <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{user.name}</p>
+              <p className="text-xs text-[var(--color-text-tertiary)] truncate">{user.email}</p>
             </div>
           </div>
         )}
-        <div className={clsx('flex gap-2', isSidebarCollapsed && 'flex-col')}>
+        <div className={clsx('flex gap-2', isSidebarCollapsed ? 'flex-col' : 'flex-row')}>
+          <ThemeToggle className={isSidebarCollapsed ? '' : ''} />
           <Button
             variant="ghost"
             size="sm"
-            className={clsx('flex-1', isSidebarCollapsed && 'px-2')}
+            className={clsx('whitespace-nowrap', isSidebarCollapsed && 'px-2 justify-center')}
             onClick={() => navigate('/settings')}
           >
             <Settings className="w-4 h-4" />
-            {!isSidebarCollapsed && 'Settings'}
+            {!isSidebarCollapsed && <span className="ml-1">Settings</span>}
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className={clsx('flex-1', isSidebarCollapsed && 'px-2')}
+            className={clsx('whitespace-nowrap', isSidebarCollapsed && 'px-2 justify-center')}
             onClick={handleLogout}
           >
             <LogOut className="w-4 h-4" />
-            {!isSidebarCollapsed && 'Logout'}
+            {!isSidebarCollapsed && <span className="ml-1">Logout</span>}
           </Button>
         </div>
       </div>
@@ -210,13 +232,13 @@ function ConversationItem({ conversation, isActive, isCollapsed, onDelete }: Con
         'flex items-center gap-3 px-3 py-2.5 rounded-lg',
         'transition-all duration-150 group',
         isActive
-          ? 'bg-crystal-500/10 border border-crystal-500/30 text-void-100'
-          : 'hover:bg-void-800/50 text-void-300 hover:text-void-100 border border-transparent'
+          ? 'bg-[var(--color-surface-hover)] text-[var(--color-text-primary)]'
+          : 'hover:bg-[var(--color-surface-hover)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
       )}
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
     >
-      <MessageSquare className={clsx('w-4 h-4 flex-shrink-0', isActive && 'text-crystal-400')} />
+      <MessageSquare className="w-4 h-4 flex-shrink-0" />
       
       {!isCollapsed && (
         <>
@@ -225,8 +247,8 @@ function ConversationItem({ conversation, isActive, isCollapsed, onDelete }: Con
           {showDelete && (
             <button
               onClick={onDelete}
-              className="p-1 text-void-500 hover:text-red-400 hover:bg-red-500/10 
-                       rounded transition-colors"
+              className="p-1 text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] 
+                       hover:bg-[var(--color-error-light)] rounded transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>

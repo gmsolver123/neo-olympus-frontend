@@ -32,7 +32,7 @@ export function Modal({
     <Fragment>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-void-950/80 backdrop-blur-sm z-50 animate-fade-in"
+        className="fixed inset-0 bg-black/50 z-50 animate-fade-in"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -42,7 +42,7 @@ export function Modal({
         <div className="flex min-h-full items-center justify-center p-4">
           <div
             className={clsx(
-              'relative w-full bg-void-900 border border-void-700 rounded-2xl shadow-2xl',
+              'relative w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-lg',
               'animate-slide-up',
               sizes[size]
             )}
@@ -50,17 +50,17 @@ export function Modal({
           >
             {/* Header */}
             {(title || showCloseButton) && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-void-700">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
                 {title && (
-                  <h2 className="text-lg font-semibold text-void-100 font-display">
+                  <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
                     {title}
                   </h2>
                 )}
                 {showCloseButton && (
                   <button
                     onClick={onClose}
-                    className="p-2 text-void-400 hover:text-void-200 hover:bg-void-800 
-                             rounded-lg transition-colors ml-auto"
+                    className="p-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] 
+                             hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors ml-auto"
                     aria-label="Close modal"
                   >
                     <X className="w-5 h-5" />

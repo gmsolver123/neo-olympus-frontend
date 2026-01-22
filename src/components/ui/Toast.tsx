@@ -19,10 +19,10 @@ const styles = {
 };
 
 const iconStyles = {
-  success: 'text-green-400',
-  error: 'text-red-400',
-  warning: 'text-yellow-400',
-  info: 'text-blue-400',
+  success: 'text-green-500',
+  error: 'text-red-500',
+  warning: 'text-yellow-500',
+  info: 'text-blue-500',
 };
 
 interface ToastItemProps {
@@ -42,24 +42,24 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
   return (
     <div
       className={clsx(
-        'flex items-start gap-3 p-4 rounded-xl border backdrop-blur-sm',
-        'shadow-lg shadow-void-950/50',
+        'flex items-start gap-3 p-4 rounded-xl border',
+        'bg-[var(--color-surface)] shadow-lg',
         'transition-all duration-200',
-        isExiting ? 'opacity-0 translate-x-full' : 'opacity-100 animate-slide-down',
+        isExiting ? 'opacity-0 translate-x-full' : 'opacity-100 animate-slide-up',
         styles[toast.type]
       )}
     >
       <Icon className={clsx('w-5 h-5 mt-0.5 flex-shrink-0', iconStyles[toast.type])} />
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-void-100">{toast.title}</p>
+        <p className="text-sm font-medium text-[var(--color-text-primary)]">{toast.title}</p>
         {toast.message && (
-          <p className="mt-1 text-sm text-void-400">{toast.message}</p>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{toast.message}</p>
         )}
       </div>
       <button
         onClick={handleRemove}
-        className="flex-shrink-0 p-1 text-void-400 hover:text-void-200 
-                   hover:bg-void-700/50 rounded transition-colors"
+        className="flex-shrink-0 p-1 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] 
+                   hover:bg-[var(--color-surface-hover)] rounded transition-colors"
       >
         <X className="w-4 h-4" />
       </button>
@@ -73,7 +73,7 @@ export function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full">
+    <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-[100] flex flex-col gap-2 max-w-sm sm:w-full mx-auto sm:mx-0">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}

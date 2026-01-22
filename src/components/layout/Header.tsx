@@ -1,4 +1,4 @@
-import { Menu, Sparkles, Cpu } from 'lucide-react';
+import { Menu, Sparkles, Zap } from 'lucide-react';
 import { useUIStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/Button';
@@ -16,55 +16,63 @@ export function Header({ title, showMenuButton = true }: HeaderProps) {
     if (!user) return null;
     
     const badges = {
-      free: { label: 'Free', color: 'bg-void-700/50 text-void-300 border border-void-600' },
-      pro: { label: 'Pro', color: 'bg-crystal-500/20 text-crystal-400 border border-crystal-500/30' },
-      enterprise: { label: 'Enterprise', color: 'bg-purple-500/20 text-purple-400 border border-purple-500/30' },
+      free: { label: 'Free', className: 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]' },
+      pro: { label: 'Pro', className: 'bg-[var(--color-accent-light)] text-[var(--color-accent)]' },
+      enterprise: { label: 'Enterprise', className: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
     };
 
     const badge = badges[user.plan];
     return (
-      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
+      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}>
         {badge.label}
       </span>
     );
   };
 
   return (
-    <header className="h-14 flex items-center justify-between px-4 border-b border-void-700/50 
-                      bg-void-950/60 backdrop-blur-md">
+    <header className="h-14 flex items-center justify-between px-4 border-b border-[var(--color-border)] 
+                      bg-[var(--color-bg)]">
       <div className="flex items-center gap-3">
         {showMenuButton && (
           <button
             onClick={toggleSidebar}
-            className="p-2 text-void-400 hover:text-crystal-400 hover:bg-void-800/50 
-                     rounded-lg transition-colors lg:hidden"
+            className="p-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)] 
+                     hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors lg:hidden"
           >
             <Menu className="w-5 h-5" />
           </button>
         )}
         
         {title && (
-          <h1 className="text-lg font-medium text-void-100">
+          <h1 className="text-base sm:text-lg font-medium text-[var(--color-text-primary)] truncate max-w-[150px] sm:max-w-none">
             {title}
           </h1>
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {getPlanBadge()}
         
         {user?.plan === 'free' && (
-          <Button variant="secondary" size="sm" className="gap-1.5">
-            <Sparkles className="w-4 h-4 text-crystal-400" />
+          <Button variant="primary" size="sm" className="gap-1.5 hidden sm:inline-flex">
+            <Sparkles className="w-4 h-4" />
             Upgrade
           </Button>
         )}
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-void-800/40 
-                      border border-void-700/50 backdrop-blur-sm">
-          <Cpu className="w-4 h-4 text-crystal-400" />
-          <span className="text-sm text-void-300">
-            <span className="font-medium text-void-100">Smart</span> routing
+        {/* Show icon-only upgrade on mobile */}
+        {user?.plan === 'free' && (
+          <Button variant="primary" size="sm" className="p-2 sm:hidden">
+            <Sparkles className="w-4 h-4" />
+          </Button>
+        )}
+
+        {/* Hide on small screens, show on medium+ */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-bg-secondary)] 
+                      border border-[var(--color-border)]">
+          <Zap className="w-4 h-4 text-[var(--color-accent)]" />
+          <span className="text-sm text-[var(--color-text-secondary)]">
+            <span className="font-medium text-[var(--color-text-primary)]">Smart</span> routing
           </span>
         </div>
       </div>
