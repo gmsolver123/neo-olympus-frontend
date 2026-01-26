@@ -16,6 +16,18 @@ import {
 // Set VITE_DEMO_MODE=true in .env for demo mode
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
+export interface AIModel {
+  id: string;
+  name: string;
+  provider: string;
+  supports_vision: boolean;
+}
+
+interface FailedMessage {
+  content: MessageContent[];
+  timestamp: number;
+}
+
 interface ChatStore {
   // State
   conversations: Conversation[];
@@ -27,6 +39,14 @@ interface ChatStore {
   streamingContent: string;
   pendingFiles: UploadedFile[];
   error: string | null;
+  
+  // Model selection
+  availableModels: AIModel[];
+  selectedModel: string;
+  
+  // Retry state
+  failedMessage: FailedMessage | null;
+  retryCount: number;
 
   // Conversation actions
   fetchConversations: () => Promise<void>;
@@ -37,8 +57,13 @@ interface ChatStore {
 
   // Message actions
   sendMessage: (content: MessageContent[]) => Promise<void>;
+  retryLastMessage: () => Promise<void>;
   addStreamChunk: (chunk: string) => void;
   completeStream: (message: Message) => void;
+
+  // Model actions
+  fetchModels: () => Promise<void>;
+  setSelectedModel: (modelId: string) => void;
 
   // File actions
   addPendingFile: (file: UploadedFile) => void;
@@ -48,6 +73,7 @@ interface ChatStore {
 
   // Error handling
   clearError: () => void;
+  clearFailedMessage: () => void;
 }
 
 // Helper to simulate streaming
@@ -64,6 +90,15 @@ const simulateStreaming = async (
   onComplete();
 };
 
+// Default models for demo mode
+const defaultModels: AIModel[] = [
+  { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', supports_vision: true },
+  { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', supports_vision: true },
+  { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', provider: 'anthropic', supports_vision: true },
+  { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'anthropic', supports_vision: true },
+  { id: 'grok-beta', name: 'Grok Beta', provider: 'xai', supports_vision: false },
+];
+
 export const useChatStore = create<ChatStore>((set, get) => ({
   conversations: [],
   currentConversation: null,
@@ -74,6 +109,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   streamingContent: '',
   pendingFiles: [],
   error: null,
+  
+  // Model selection
+  availableModels: defaultModels,
+  selectedModel: 'gpt-4o-mini',
+  
+  // Retry state
+  failedMessage: null,
+  retryCount: 0,
 
   // Conversation actions
   fetchConversations: async () => {
@@ -198,7 +241,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Message actions
   sendMessage: async (content: MessageContent[]) => {
-    const { currentConversation, pendingFiles } = get();
+    const { currentConversation, pendingFiles, selectedModel } = get();
     
     // Add file content from pending files
     const fileContent: MessageContent[] = pendingFiles
@@ -230,6 +273,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       streamingContent: '',
       pendingFiles: [],
       error: null,
+      failedMessage: null,
     }));
 
     if (DEMO_MODE) {
@@ -271,7 +315,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             conversation_id: conversation!.id,
             role: 'assistant',
             content: [{ type: 'text', text: responseText }],
-            model_used: ['gpt-4o', 'claude-3-5-sonnet', 'gemini-pro'][Math.floor(Math.random() * 3)],
+            model_used: selectedModel,
             tokens_input: Math.floor(Math.random() * 100) + 50,
             tokens_output: Math.floor(Math.random() * 300) + 100,
             latency_ms: Math.floor(Math.random() * 2000) + 500,
@@ -283,6 +327,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
             isSending: false,
             isStreaming: false,
             streamingContent: '',
+            failedMessage: null,
+            retryCount: 0,
             currentConversation: conversation ? {
               ...conversation,
               message_count: (conversation.message_count || 0) + 2,
@@ -298,6 +344,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const request: SendMessageRequest = {
         conversation_id: currentConversation?.id,
         content: allContent,
+        model_preference: selectedModel,
       };
 
       const response = await chatService.sendMessage(request);
@@ -317,6 +364,8 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           : [response.conversation, ...state.conversations],
         isSending: false,
         isStreaming: false,
+        failedMessage: null,
+        retryCount: 0,
       }));
     } catch (error) {
       set((state) => ({
@@ -324,8 +373,26 @@ export const useChatStore = create<ChatStore>((set, get) => ({
         isSending: false,
         isStreaming: false,
         error: (error as Error).message || 'Failed to send message',
+        failedMessage: { content: allContent, timestamp: Date.now() },
       }));
     }
+  },
+
+  retryLastMessage: async () => {
+    const { failedMessage, retryCount } = get();
+    
+    if (!failedMessage) return;
+    
+    // Max 3 retries
+    if (retryCount >= 3) {
+      set({ error: 'Maximum retry attempts reached. Please try again later.' });
+      return;
+    }
+    
+    set((state) => ({ retryCount: state.retryCount + 1, error: null }));
+    
+    // Retry sending the message
+    await get().sendMessage(failedMessage.content);
   },
 
   addStreamChunk: (chunk: string) => {
@@ -367,5 +434,32 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     set({ pendingFiles: [] });
   },
 
+  // Model actions
+  fetchModels: async () => {
+    if (DEMO_MODE) {
+      // Use default models in demo mode
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.neoolympusai.com'}/api/v1/models`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.models && data.models.length > 0) {
+          set({ availableModels: data.models });
+        }
+      }
+    } catch (error) {
+      // Keep default models on error
+      console.error('Failed to fetch models:', error);
+    }
+  },
+
+  setSelectedModel: (modelId: string) => {
+    set({ selectedModel: modelId });
+  },
+
   clearError: () => set({ error: null }),
+  
+  clearFailedMessage: () => set({ failedMessage: null, retryCount: 0 }),
 }));

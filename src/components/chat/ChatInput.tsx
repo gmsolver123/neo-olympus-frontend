@@ -9,10 +9,13 @@ import {
   X,
   Loader2,
   FileText,
-  Upload
+  Upload,
+  RotateCcw,
+  AlertCircle
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Button } from '../ui/Button';
+import { ModelSelector } from './ModelSelector';
 import { useChatStore } from '../../store/chatStore';
 import { useUIStore } from '../../store/uiStore';
 import { fileService } from '../../services/files';
@@ -33,9 +36,23 @@ export function ChatInput() {
     pendingFiles, 
     addPendingFile, 
     removePendingFile,
-    updatePendingFile 
+    updatePendingFile,
+    availableModels,
+    selectedModel,
+    setSelectedModel,
+    fetchModels,
+    failedMessage,
+    retryLastMessage,
+    clearFailedMessage,
+    retryCount,
+    error
   } = useChatStore();
   const { addToast } = useUIStore();
+
+  // Fetch available models on mount
+  useEffect(() => {
+    fetchModels();
+  }, [fetchModels]);
 
   const handleSubmit = async () => {
     if ((!message.trim() && pendingFiles.length === 0) || isSending) return;
@@ -251,6 +268,47 @@ export function ChatInput() {
           ))}
         </div>
       )}
+
+      {/* Error/Retry Banner */}
+      {failedMessage && (
+        <div className="mb-3 p-3 rounded-lg bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-sm text-[var(--color-error)]">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>Message failed to send.{retryCount > 0 && ` (Attempt ${retryCount}/3)`}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFailedMessage}
+              className="text-xs"
+            >
+              Dismiss
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={retryLastMessage}
+              disabled={isSending || retryCount >= 3}
+              className="text-xs flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Model Selector Row */}
+      <div className="flex items-center gap-2 mb-2">
+        <ModelSelector
+          models={availableModels}
+          selectedModel={selectedModel}
+          onSelect={setSelectedModel}
+          disabled={isSending}
+          compact
+        />
+      </div>
 
       {/* Input Area */}
       <div className="flex items-center gap-2 sm:gap-3">

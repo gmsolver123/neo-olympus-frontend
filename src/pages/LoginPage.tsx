@@ -6,11 +6,13 @@ import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { OAuthButtons } from '../components/auth';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
+import { setAccessToken } from '../services/api';
+import { setRefreshToken, authService } from '../services/auth';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login, loginDemo, isLoading, error, clearError } = useAuthStore();
+  const { login, loginDemo, isLoading, error, clearError, setUser } = useAuthStore();
   const { addToast } = useUIStore();
   
   const [email, setEmail] = useState('');
@@ -31,17 +33,31 @@ export function LoginPage() {
       });
     } else if (token && refreshToken) {
       // OAuth successful - tokens are in URL
-      // Store tokens and redirect
-      localStorage.setItem('access_token', token);
-      localStorage.setItem('refresh_token', refreshToken);
-      navigate('/chat');
-      addToast({
-        type: 'success',
-        title: 'Welcome!',
-        message: 'You have successfully signed in.',
-      });
+      // Store tokens properly using the auth service functions
+      setAccessToken(token);
+      setRefreshToken(refreshToken);
+      
+      // Fetch user data and update auth store
+      authService.getCurrentUser()
+        .then((user) => {
+          setUser(user);
+          navigate('/chat');
+          addToast({
+            type: 'success',
+            title: 'Welcome!',
+            message: 'You have successfully signed in.',
+          });
+        })
+        .catch((err) => {
+          console.error('Failed to fetch user after OAuth:', err);
+          addToast({
+            type: 'error',
+            title: 'Authentication failed',
+            message: 'Failed to complete sign in. Please try again.',
+          });
+        });
     }
-  }, [searchParams, navigate, addToast]);
+  }, [searchParams, navigate, addToast, setUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,16 +1,25 @@
 import { useRef, useEffect } from 'react';
 import { MessageBubble } from './MessageBubble';
+import { TypingIndicator } from './TypingIndicator';
 import { useChatStore } from '../../store/chatStore';
 import { Loader2 } from 'lucide-react';
 
 export function MessageList() {
-  const { messages, isStreaming, streamingContent, isLoading } = useChatStore();
+  const { 
+    messages, 
+    isStreaming, 
+    streamingContent, 
+    isLoading, 
+    isSending,
+    selectedModel,
+    availableModels 
+  } = useChatStore();
   const bottomRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, streamingContent]);
+  }, [messages, streamingContent, isSending]);
 
   if (isLoading) {
     return (
@@ -19,6 +28,10 @@ export function MessageList() {
       </div>
     );
   }
+
+  // Get selected model name for typing indicator
+  const selectedModelData = availableModels.find(m => m.id === selectedModel);
+  const modelName = selectedModelData?.name;
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -32,8 +45,13 @@ export function MessageList() {
           />
         ))}
 
+        {/* Typing indicator when waiting for response */}
+        {isSending && !streamingContent && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+          <TypingIndicator modelName={modelName} />
+        )}
+
         {/* Streaming message placeholder */}
-        {isStreaming && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+        {isStreaming && streamingContent && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
           <MessageBubble
             message={{
               id: 'streaming',

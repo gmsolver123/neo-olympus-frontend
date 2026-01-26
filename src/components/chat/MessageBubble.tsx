@@ -16,16 +16,20 @@ import { clsx } from 'clsx';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Message, MessageContent } from '../../types';
+import { useChatStore } from '../../store/chatStore';
 
 interface MessageBubbleProps {
   message: Message;
   isStreaming?: boolean;
   streamingContent?: string;
+  isLastAssistantMessage?: boolean;
 }
 
 export function MessageBubble({ message, isStreaming, streamingContent }: MessageBubbleProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const isUser = message.role === 'user';
+  const { messages, sendMessage, isSending } = useChatStore();
 
   const handleCopy = async () => {
     const textContent = message.content
@@ -36,6 +40,33 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
     await navigator.clipboard.writeText(textContent);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleRegenerate = async () => {
+    if (isSending || isRegenerating) return;
+    
+    // Find the last user message before this assistant message
+    const messageIndex = messages.findIndex(m => m.id === message.id);
+    if (messageIndex <= 0) return;
+    
+    // Look for the previous user message
+    let userMessage = null;
+    for (let i = messageIndex - 1; i >= 0; i--) {
+      if (messages[i].role === 'user') {
+        userMessage = messages[i];
+        break;
+      }
+    }
+    
+    if (!userMessage) return;
+    
+    setIsRegenerating(true);
+    try {
+      // Re-send the user's message content to get a new response
+      await sendMessage(userMessage.content);
+    } finally {
+      setIsRegenerating(false);
+    }
   };
 
   const displayContent = isStreaming ? streamingContent : null;
@@ -132,7 +163,13 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
               onClick={handleCopy}
               label="Copy"
             />
-            <ActionButton icon={RefreshCw} onClick={() => {}} label="Regenerate" />
+            <ActionButton 
+              icon={RefreshCw} 
+              onClick={handleRegenerate} 
+              label="Regenerate"
+              disabled={isSending || isRegenerating}
+              loading={isRegenerating}
+            />
             <ActionButton icon={ThumbsUp} onClick={() => {}} label="Good response" />
             <ActionButton icon={ThumbsDown} onClick={() => {}} label="Bad response" />
           </div>
@@ -260,15 +297,22 @@ interface ActionButtonProps {
   icon: React.ComponentType<{ className?: string }>;
   onClick: () => void;
   label: string;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-function ActionButton({ icon: Icon, onClick, label }: ActionButtonProps) {
+function ActionButton({ icon: Icon, onClick, label, disabled, loading }: ActionButtonProps) {
   return (
     <button
       onClick={onClick}
       title={label}
-      className="p-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] 
-               hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors"
+      disabled={disabled}
+      className={clsx(
+        "p-1.5 text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)]",
+        "hover:bg-[var(--color-surface-hover)] rounded-lg transition-colors",
+        disabled && "opacity-50 cursor-not-allowed",
+        loading && "animate-spin"
+      )}
     >
       <Icon className="w-3.5 h-3.5" />
     </button>
