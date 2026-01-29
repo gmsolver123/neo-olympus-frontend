@@ -10,13 +10,27 @@ import {
   Play,
   Pause,
   FileText,
-  Volume2
+  Volume2,
+  Sparkles
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Message, MessageContent } from '../../types';
 import { useChatStore } from '../../store/chatStore';
+
+// Provider color mapping for model badges
+const providerColors: Record<string, { bg: string; text: string; border: string }> = {
+  openai: { bg: 'bg-emerald-500/10', text: 'text-emerald-500', border: 'border-emerald-500/30' },
+  anthropic: { bg: 'bg-orange-500/10', text: 'text-orange-500', border: 'border-orange-500/30' },
+  xai: { bg: 'bg-blue-500/10', text: 'text-blue-500', border: 'border-blue-500/30' },
+  google: { bg: 'bg-red-500/10', text: 'text-red-500', border: 'border-red-500/30' },
+  default: { bg: 'bg-purple-500/10', text: 'text-purple-500', border: 'border-purple-500/30' },
+};
+
+function getProviderColors(provider?: string) {
+  return providerColors[provider || 'default'] || providerColors.default;
+}
 
 interface MessageBubbleProps {
   message: Message;
@@ -175,22 +189,35 @@ export function MessageBubble({ message, isStreaming, streamingContent }: Messag
           </div>
         )}
 
-        {/* Message Metadata */}
-        {!isUser && message.model_used && (
-          <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
-            <span className="text-[var(--color-accent)]">{message.model_used}</span>
-            {message.tokens_output && (
-              <>
-                <span>•</span>
+        {/* Message Metadata - Model Badge and Stats */}
+        {!isUser && (message.model_used || message.model_name) && (
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Model Badge */}
+            <ModelBadge 
+              modelName={message.model_name || message.model_used || 'Unknown'}
+              provider={message.provider}
+            />
+            
+            {/* Stats */}
+            <div className="flex items-center gap-2 text-xs text-[var(--color-text-tertiary)]">
+              {message.tokens_input && message.tokens_output && (
+                <span className="flex items-center gap-1">
+                  <span className="font-medium">{message.tokens_input}</span>
+                  <span>/</span>
+                  <span className="font-medium">{message.tokens_output}</span>
+                  <span>tokens</span>
+                </span>
+              )}
+              {message.tokens_output && !message.tokens_input && (
                 <span>{message.tokens_output} tokens</span>
-              </>
-            )}
-            {message.latency_ms && (
-              <>
-                <span>•</span>
-                <span>{message.latency_ms}ms</span>
-              </>
-            )}
+              )}
+              {message.latency_ms && (
+                <>
+                  {(message.tokens_output || message.tokens_input) && <span>•</span>}
+                  <span>{message.latency_ms}ms</span>
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -316,5 +343,28 @@ function ActionButton({ icon: Icon, onClick, label, disabled, loading }: ActionB
     >
       <Icon className="w-3.5 h-3.5" />
     </button>
+  );
+}
+
+interface ModelBadgeProps {
+  modelName: string;
+  provider?: string;
+}
+
+function ModelBadge({ modelName, provider }: ModelBadgeProps) {
+  const colors = getProviderColors(provider);
+  
+  return (
+    <div 
+      className={clsx(
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border",
+        colors.bg,
+        colors.text,
+        colors.border
+      )}
+    >
+      <Sparkles className="w-3 h-3" />
+      <span>{modelName}</span>
+    </div>
   );
 }

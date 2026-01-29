@@ -75,8 +75,8 @@ export interface MessageContent {
   filename?: string;
   mime_type?: string;
   thumbnail_url?: string;
-  duration?: number; // For audio/video in seconds
-  transcription?: string; // For audio/video
+  duration?: number;
+  transcription?: string;
 }
 
 export interface Message {
@@ -85,6 +85,8 @@ export interface Message {
   role: MessageRole;
   content: MessageContent[];
   model_used?: string;
+  model_name?: string;
+  provider?: string;
   prompt_used?: string;
   tokens_input?: number;
   tokens_output?: number;
@@ -137,6 +139,15 @@ export interface RouterDecision {
   reasoning: string;
 }
 
+export interface RoutingInfo {
+  category: string;
+  category_name: string;
+  reasoning: string;
+  confidence: number;
+  model_name?: string;
+  provider?: string;
+}
+
 // ============================================================================
 // File Upload Types
 // ============================================================================
@@ -152,7 +163,6 @@ export interface UploadedFile {
   status: 'uploading' | 'processing' | 'ready' | 'error';
   progress: number;
   error?: string;
-  // For local preview before upload completes
   localPreviewUrl?: string;
 }
 

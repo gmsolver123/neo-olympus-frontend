@@ -4,7 +4,8 @@ import type {
   ConversationWithMessages, 
   Message, 
   MessageContent,
-  PaginatedResponse 
+  PaginatedResponse,
+  RoutingInfo 
 } from '../types';
 import { apiDelete, apiGet, apiPost } from './api';
 
@@ -17,6 +18,7 @@ export interface SendMessageRequest {
 export interface SendMessageResponse {
   message: Message;
   conversation: Conversation;
+  routing?: RoutingInfo;
 }
 
 export const chatService = {

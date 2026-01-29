@@ -241,7 +241,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
 
   // Message actions
   sendMessage: async (content: MessageContent[]) => {
-    const { currentConversation, pendingFiles, selectedModel } = get();
+    const { currentConversation, pendingFiles } = get();
     
     // Add file content from pending files
     const fileContent: MessageContent[] = pendingFiles
@@ -310,12 +310,21 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           }));
         },
         () => {
+          // Find model info from available models
+          const modelInfo = get().availableModels.find(m => m.id === selectedModel);
+          
+          // In demo mode, use a random model for display
+          const demoModels = get().availableModels;
+          const randomModel = demoModels[Math.floor(Math.random() * demoModels.length)];
+          
           const assistantMessage: Message = {
             id: `msg-${Date.now()}`,
             conversation_id: conversation!.id,
             role: 'assistant',
             content: [{ type: 'text', text: responseText }],
-            model_used: selectedModel,
+            model_used: randomModel?.id || 'gpt-4o-mini',
+            model_name: randomModel?.name || 'GPT-4o Mini',
+            provider: randomModel?.provider || 'openai',
             tokens_input: Math.floor(Math.random() * 100) + 50,
             tokens_output: Math.floor(Math.random() * 300) + 100,
             latency_ms: Math.floor(Math.random() * 2000) + 500,
@@ -344,17 +353,24 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const request: SendMessageRequest = {
         conversation_id: currentConversation?.id,
         content: allContent,
-        model_preference: selectedModel,
+        // model_preference is omitted - backend will auto-select based on prompt
       };
 
       const response = await chatService.sendMessage(request);
 
       // The response contains the assistant message
+      // Enhance message with routing info if available
+      const assistantMessage: Message = {
+        ...response.message,
+        model_name: response.routing?.model_name || response.message.model_name,
+        provider: response.routing?.provider || response.message.provider,
+      };
+
       // Keep our optimistic user message and add the assistant response
       set((state) => ({
         messages: [
           ...state.messages, // Keep the user message we already added
-          response.message,  // Add the assistant response
+          assistantMessage,  // Add the assistant response with routing info
         ],
         currentConversation: response.conversation,
         conversations: state.conversations.some((c) => c.id === response.conversation.id)

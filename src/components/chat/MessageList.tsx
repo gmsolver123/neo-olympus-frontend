@@ -10,9 +10,7 @@ export function MessageList() {
     isStreaming, 
     streamingContent, 
     isLoading, 
-    isSending,
-    selectedModel,
-    availableModels 
+    isSending
   } = useChatStore();
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -29,10 +27,6 @@ export function MessageList() {
     );
   }
 
-  // Get selected model name for typing indicator
-  const selectedModelData = availableModels.find(m => m.id === selectedModel);
-  const modelName = selectedModelData?.name;
-
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-4xl mx-auto py-2 sm:py-4 px-2 sm:px-0">
@@ -47,7 +41,7 @@ export function MessageList() {
 
         {/* Typing indicator when waiting for response */}
         {isSending && !streamingContent && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
-          <TypingIndicator modelName={modelName} />
+          <TypingIndicator />
         )}
 
         {/* Streaming message placeholder */}
